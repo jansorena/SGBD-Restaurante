@@ -157,7 +157,7 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION ganancia(fecha DATE)
 RETURNS REAL AS $$
-DECLARE ganancia REAL, ingresos REAL, egresos REAL;
+DECLARE ganancia REAL; ingresos REAL; egresos REAL;
 BEGIN
 
 	ingresos := (

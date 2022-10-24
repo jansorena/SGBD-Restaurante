@@ -230,7 +230,7 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
-SELECT precio('Hamburguesa');
+SELECT precio('Hamburguesa1');
 SELECT precio_pedido(1);
 
 

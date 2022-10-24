@@ -9,7 +9,8 @@ INSERT INTO ingrediente(id_ingrediente,nombre,stock,u_m,fecha_exp,valor_unitario
 (8,'lechuga',28,'kg','2022-10-25',1000);
 
 INSERT INTO producto(id_producto,nombre,porcentaje_ganancia,tmp_preparacion) VALUES
-(1234,'Hamburguesa1',20,20);
+(1234,'Hamburguesa1',20,20),
+(1235,'Hamburguesa2',20,20);
 
 INSERT INTO compone(id_producto,id_ingrediente,cantidad_ingrediente) VALUES
 (1234,1,1),
@@ -20,9 +21,6 @@ INSERT INTO compone(id_producto,id_ingrediente,cantidad_ingrediente) VALUES
 (1234,6,2),
 (1234,7,0.2),
 (1234,8,0.2);
-
-INSERT INTO producto(id_producto,nombre,porcentaje_ganancia,tmp_preparacion) VALUES
-(1235,'Hamburguesa2',20,20);
 
 INSERT INTO compone(id_producto,id_ingrediente,cantidad_ingrediente) VALUES
 (1235,1,1),
@@ -214,28 +212,5 @@ $$ LANGUAGE plpgsql;
 
 SELECT precio('Hamburguesa');
 SELECT precio_pedido(1);
-
-/* Ganancias */
-
-CREATE OR REPLACE FUNCTION ganancias(fecha DATE)
-RETURN REAL AS $$
-DECLARE 
-	ganancias REAL, ingresos REAL, egresos REAL;
-BEGIN
-	ingresos := (
-		SELECT sum(precio_pedido(pe.id_pedido))
-		FROM pedidos as pe
-		WHERE fecha = pe.fecha_pedido
-		);
-	egresos := (
-		SELECT sum(e.total)
-		FROM egresos as e
-		WHERE e.fecha_egreso = fecha;
-		);
-
-	ganacias := ingresos - egresos;
-	RETURN ganancias;
-END
-$$ LANGUAGE plpgsql;
 
 

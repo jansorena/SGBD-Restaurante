@@ -11,7 +11,7 @@ INSERT INTO ingrediente(id_ingrediente,nombre,stock,u_m,fecha_exp,valor_unitario
 
 /* Hamburguesa1 y Hamburguesa2*/
 INSERT INTO producto(id_producto,nombre,porcentaje_ganancia,tmp_preparacion) VALUES
-(1234,'Hamburguesa1',20,20);
+(1234,'Hamburguesa1',20,20),
 (1235,'Hamburguesa2',20,20);
 
 /* relacion entre producto e ingredientes*/
@@ -23,7 +23,7 @@ INSERT INTO compone(id_producto,id_ingrediente,cantidad_ingrediente) VALUES
 (1234,5,0.5),
 (1234,6,2),
 (1234,7,0.2),
-(1234,8,0.2);
+(1234,8,0.2),
 (1235,1,1),
 (1235,2,4),
 (1235,3,3),
@@ -34,8 +34,8 @@ INSERT INTO compone(id_producto,id_ingrediente,cantidad_ingrediente) VALUES
 (1235,8,0.4);
 
 /* persona */
-
-('20123456-7','Pedro','Perez');
+INSERT INTO persona(RUT,nombre,apellido) VALUES
+('20123456-7','Pedro','Perez'),
 ('87423982-8','Adel','GARCIA'),
 ('51986651-K','Adonis','RODRIGUEZ'),
 ('42957743-8','Ajaz','GONZALEZ'),
@@ -44,12 +44,10 @@ INSERT INTO compone(id_producto,id_ingrediente,cantidad_ingrediente) VALUES
 ('12786274-5','Amets','MARTINEZ'),
 ('84464435-3','Amaro','SANCHEZ'),
 ('19373328-K','Aquiles','PEREZ'),
-('32947945-5','Algimantas','GOMEZ'),
-
-
+('32947945-5','Algimantas','GOMEZ');
 
 /* trabajadores */
-
+INSERT INTO trabajador(RUT,cargo,sueldo) VALUES
 ('20123456-7','mesero','500000'),
 ('87423982-8','lavaplatos','450000'),
 ('51986651-K','auxiliar de aseo','450000'),
@@ -59,9 +57,12 @@ INSERT INTO compone(id_producto,id_ingrediente,cantidad_ingrediente) VALUES
 ('12786274-5','bodeguero','500000'),
 ('84464435-3','administrador','700000'),
 ('19373328-K','cajero','450000'),
-('32947945-5','chef','650000'),
+('32947945-5','chef','650000');
 
-
+INSERT INTO cliente(RUT) VALUES
+('20123456-7'),
+('87423982-8'),
+('51986651-K');
 
 
 

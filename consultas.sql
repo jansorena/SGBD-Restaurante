@@ -215,4 +215,27 @@ $$ LANGUAGE plpgsql;
 SELECT precio('Hamburguesa');
 SELECT precio_pedido(1);
 
+/* Ganancias */
+
+CREATE OR REPLACE FUNCTION ganancias(fecha DATE)
+RETURN REAL AS $$
+DECLARE 
+	ganancias REAL, ingresos REAL, egresos REAL;
+BEGIN
+	ingresos := (
+		SELECT sum(precio_pedido(pe.id_pedido))
+		FROM pedidos as pe
+		WHERE fecha = pe.fecha_pedido
+		);
+	egresos := (
+		SELECT sum(e.total)
+		FROM egresos as e
+		WHERE e.fecha_egreso = fecha;
+		);
+
+	ganacias := ingresos - egresos;
+	RETURN ganancias;
+END
+$$ LANGUAGE plpgsql;
+
 

@@ -55,9 +55,24 @@ INSERT INTO trabajador(RUT,cargo,sueldo) VALUES
 ('18864263-2','bartender','700000'),
 ('41152666-6','portero','450000'),
 ('12786274-5','bodeguero','500000'),
-('84464435-3','administrador','700000'),
+('84464435-3','administrador','7450000'),
 ('19373328-K','cajero','450000'),
 ('32947945-5','chef','650000');
+
+INSERT INTO egreso VALUES
+(1,CURRENT_DATE,'pago trabajador',500000),
+(2,CURRENT_DATE,'pago trabajador',450000),
+(3,CURRENT_DATE,'pago trabajador',450000),
+(4,CURRENT_DATE,'pago trabajador',850000),
+(5,CURRENT_DATE,'pago trabajador',700000),
+(6,CURRENT_DATE,'pago trabajador',450000),
+(7,CURRENT_DATE,'pago trabajador',500000),
+(8,CURRENT_DATE,'pago trabajador',745000),
+(9,CURRENT_DATE,'pago trabajador',450000),
+(10,CURRENT_DATE,'pago trabajador',650000),
+
+INSERTO INTO pago_trabajador VALUES
+(1),(2),(3),(4),(5),(6),(7),(8),(9),(10);
 
 INSERT INTO cliente(RUT) VALUES
 ('20123456-7'),

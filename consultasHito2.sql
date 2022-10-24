@@ -69,10 +69,19 @@ INSERT INTO egreso VALUES
 (7,CURRENT_DATE,'pago trabajador',500000),
 (8,CURRENT_DATE,'pago trabajador',745000),
 (9,CURRENT_DATE,'pago trabajador',450000),
-(10,CURRENT_DATE,'pago trabajador',650000),
+(10,CURRENT_DATE,'pago trabajador',650000);
 
-INSERTO INTO pago_trabajador VALUES
-(1),(2),(3),(4),(5),(6),(7),(8),(9),(10);
+INSERT INTO pago_trabajador VALUES
+(1),
+(2),
+(3),
+(4),
+(5),
+(6),
+(7),
+(8),
+(9),
+(10);
 
 INSERT INTO cliente(RUT) VALUES
 ('20123456-7'),
@@ -99,25 +108,77 @@ INSERT INTO pedido (id_pedido,RUT) VALUES
 (10,'32947945-5');
 
 INSERT INTO tiene VALUES
-(1,1234,258),
-(1,1235,283),
-(2,1234,396),
-(2,1235,257),
-(3,1234,271),
-(3,1235,381),
-(4,1234,202),
-(4,1235,353),
-(5,1234,158),
-(5,1235,253),
-(6,1234,116),
-(6,1235,126),
-(7,1234,221),
-(7,1235,285),
-(8,1234,178),
-(8,1235,173),
-(9,1234,314),
-(9,1235,173),
-(10,1234,376),
-(10,1235,353);
+(1,1234,18),
+(1,1235,13),
+(2,1234,26),
+(2,1235,17),
+(3,1234,11),
+(3,1235,31),
+(4,1234,2),
+(4,1235,53),
+(5,1234,58),
+(5,1235,53),
+(6,1234,16),
+(6,1235,26),
+(7,1234,21),
+(7,1235,65),
+(8,1234,28),
+(8,1235,13),
+(9,1234,14),
+(9,1235,23),
+(10,1234,16),
+(10,1235,3);
 
+CREATE OR REPLACE FUNCTION precio(nombre_producto TEXT)
+RETURNS REAL AS $$
+DECLARE precio_producto REAL;
+BEGIN
+	precio_producto := (
+		SELECT sum(i.valor_unitario*c.cantidad_ingrediente*(1+p.porcentaje_ganancia/100))
+		FROM producto as p, compone as c, ingrediente as i
+		WHERE p.nombre = nombre_producto AND p.id_producto = c.id_producto AND c.id_ingrediente = i.id_ingrediente
+	);
+	RETURN precio_producto;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION precio_pedido(numero_pedido INT)
+RETURNS REAL AS $$
+DECLARE precio_pedido REAL;
+BEGIN
+	precio_pedido := (
+		SELECT sum(t.cantidad_producto*precio(pr.nombre))
+		FROM pedido as pe, tiene as t, producto as pr
+		WHERE pe.id_pedido = numero_pedido AND pe.id_pedido = t.id_pedido AND t.id_producto = pr.id_producto
+		);
+	RETURN precio_pedido;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION ganancia(fecha DATE)
+RETURNS REAL AS $$
+DECLARE ganancia REAL, ingresos REAL, egresos REAL;
+BEGIN
+
+	ingresos := (
+		SELECT sum(precio_pedido(pe.id_pedido))
+		FROM pedido as pe
+		WHERE pe.fecha_pedido = fecha
+	);
+
+	egresos := (
+		SELECT sum(e.total)
+		FROM egreso as e
+		WHERE e.fecha_egreso = fecha
+	);
+
+	ganancia := ingresos - egresos;
+
+	RETURN ganancia;
+END
+$$ LANGUAGE plpgsql;
+
+SELECT precio('Hamburguesa1');
+SELECT precio_pedido(1);
+SELECT ganancia(CURRENT_DATE);
 

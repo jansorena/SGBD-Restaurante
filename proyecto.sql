@@ -48,8 +48,8 @@ fecha_venta DATE DEFAULT CURRENT_DATE);
 CREATE TABLE ingrediente(
 id_ingrediente INT PRIMARY KEY,
 nombre VARCHAR(100),
-stock INT,
-u_m VARCHAR(100),
+stock INT CHECK(stock >= 0),
+u_m VARCHAR(100) CHECK(u_m IN ('unidad','kg','L')),
 fecha_exp DATE,
 valor_unitario INT);
 
@@ -97,6 +97,7 @@ id_ingrediente INT REFERENCES ingrediente(id_ingrediente) ON DELETE RESTRICT ON 
 id_egreso INT REFERENCES compra(id_egreso) ON DELETE RESTRICT ON UPDATE CASCADE,
 fecha_actualiza DATE DEFAULT CURRENT_DATE,
 cantidad_actualiza INT,
+estado_actualiza VARCHAR(100) DEFAULT 'no actualizado' CHECK(estado_pedido IN ('actualizado','no actualizado')),
 PRIMARY KEY(id_ingrediente,id_egreso));
 
 CREATE TABLE transaccion(

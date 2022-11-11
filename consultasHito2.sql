@@ -178,6 +178,31 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION bajo_stock()
+RETURNS TRIGGER AS $$
+DECLARE
+BEGIN
+	IF(SELECT i.stock
+	FROM ingrediente AS i
+	WHERE i.id_ingrediente = NEW.id_ingrediente AND
+		i.stock < 20) < 20
+	THEN
+	INSERT INTO egreso(id_egreso,fecha_egreso,descripcion) VALUES 
+	((SELECT MAX(id_egreso) FROM egreso)+1,CURRENT_DATE,'Compra');	
+	RETURN NEW;
+	END IF;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER bajo_stock
+AFTER UPDATE ON ingrediente
+FOR EACH ROW 
+EXECUTE PROCEDURE bajo_stock();
+
+UPDATE ingrediente
+SET stock = 15
+WHERE id_ingrediente = 3;
+
 SELECT precio('Hamburguesa1');
 SELECT precio_pedido(1);
 SELECT ganancia(CURRENT_DATE);

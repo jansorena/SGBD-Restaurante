@@ -180,14 +180,18 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION bajo_stock()
 RETURNS TRIGGER AS $$
+DECLARE
+auxNombre VARCHAR(100) := NEw.nombre;
 BEGIN
+	--MAX() retorna el maximo valor del atributo
+	--Concat() concatena
 	IF(SELECT stock
 	FROM ingrediente AS i
 	WHERE i.id_ingrediente = NEW.id_ingrediente AND
 		i.u_m = 'unidad' AND
 		i.stock < 20) < 20 THEN
 	INSERT INTO egreso(id_egreso,fecha_egreso,descripcion) VALUES 
-	((SELECT MAX(id_egreso) FROM egreso)+1,CURRENT_DATE,'Compra');
+	((SELECT MAX(id_egreso) FROM egreso)+1,CURRENT_DATE,CONCAT('Compra ',auxNombre));
 
 	ELSIF(SELECT stock
 	FROM ingrediente AS i
@@ -195,7 +199,7 @@ BEGIN
 		i.u_m = 'kg' AND
 		i.stock < 5) < 5 THEN
 	INSERT INTO egreso(id_egreso,fecha_egreso,descripcion) VALUES 
-	((SELECT MAX(id_egreso) FROM egreso)+1,CURRENT_DATE,'Compra');
+	((SELECT MAX(id_egreso) FROM egreso)+1,CURRENT_DATE,CONCAT('Compra ',auxNombre));
 	
 	ELSIF(SELECT stock
 	FROM ingrediente AS i
@@ -203,8 +207,7 @@ BEGIN
 		i.u_m = 'L' AND
 		i.stock < 3) < 3 THEN
 	INSERT INTO egreso(id_egreso,fecha_egreso,descripcion) VALUES 
-	((SELECT MAX(id_egreso) FROM egreso)+1,CURRENT_DATE,'Compra');
-
+	((SELECT MAX(id_egreso) FROM egreso)+1,CURRENT_DATE,CONCAT('Compra ',auxNombre));
 	END IF;
 	RETURN NEW;
 END
@@ -218,9 +221,6 @@ EXECUTE PROCEDURE bajo_stock();
 UPDATE ingrediente
 SET stock = 15
 WHERE id_ingrediente = 3;
-UPDATE ingrediente
-SET stock = 9
-WHERE id_ingrediente = 8;
 
 SELECT precio('Hamburguesa1');
 SELECT precio_pedido(1);

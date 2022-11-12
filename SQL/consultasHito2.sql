@@ -236,12 +236,19 @@ BEGIN
 	IF(NEW.estado_actualiza = 'actualizado') THEN
 		UPDATE egreso SET total = auxVal*NEW.cantidad_actualiza WHERE egreso.id_egreso = NEW.id_egreso;
 		UPDATE ingrediente SET stock = stock+NEW.cantidad_actualiza WHERE ingrediente.id_ingrediente = NEW.id_ingrediente;
+		DELETE actualiza FROM actualiza AS a WHERE a.id_ingrediente = NEW.id_ingrediente AND a.estado_actualiza = 'no actualizado';
+		DELETE compra FROM compra AS c, egreso AS e, ingrediente AS i 
+		WHERE  c.id_egreso = e.id_egreso AND i.id_ingrediente = NEW.id_ingrediente AND
+			e.descripcion = CONCAT('Compra ',i.nombre) AND e.total = NULL;
+		DELETE egreso FROM egreso AS e, ingrediente AS i
+		WHERE  i.id_ingrediente = NEW.id_ingrediente AND
+			e.descripcion = CONCAT('Compra ',i.nombre) AND e.total = NULL;
 	RETURN NEW;
 	END IF;
 END
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER bajo_stock
+CREATE TRIGGER actualizar_stock
 AFTER UPDATE ON actualiza
 FOR EACH ROW 
 EXECUTE PROCEDURE actualizar_stock();

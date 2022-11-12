@@ -96,8 +96,8 @@ CREATE TABLE actualiza(
 id_ingrediente INT REFERENCES ingrediente(id_ingrediente) ON DELETE RESTRICT ON UPDATE CASCADE,
 id_egreso INT REFERENCES compra(id_egreso) ON DELETE RESTRICT ON UPDATE CASCADE,
 fecha_actualiza DATE DEFAULT CURRENT_DATE,
-cantidad_actualiza INT,
-estado_actualiza VARCHAR(100) DEFAULT 'no actualizado' CHECK(estado_pedido IN ('actualizado','no actualizado')),
+cantidad_actualiza INT CHECK(cantidad_actualiza > 0),
+estado_actualiza VARCHAR(100) DEFAULT 'no actualizado' CHECK(estado_actualiza IN ('actualizado','no actualizado')),
 PRIMARY KEY(id_ingrediente,id_egreso));
 
 CREATE TABLE transaccion(

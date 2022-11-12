@@ -191,7 +191,8 @@ BEGIN
 	INSERT INTO egreso(id_egreso,fecha_egreso,descripcion) VALUES 
 	((SELECT MAX(id_egreso) FROM egreso)+1,CURRENT_DATE,CONCAT('Compra ',auxNombre));
 	INSERT INTO compra VALUES ((SELECT MAX(id_egreso) FROM egreso));
-
+	INSERT INTO actualiza (id_ingrediente,id_egreso) VALUES (NEW.id_ingrediente,(SELECT MAX(id_egreso) FROM egreso));
+	
 	ELSIF(SELECT stock
 	FROM ingrediente AS i
 	WHERE i.id_ingrediente = NEW.id_ingrediente AND
@@ -200,6 +201,7 @@ BEGIN
 	INSERT INTO egreso(id_egreso,fecha_egreso,descripcion) VALUES 
 	((SELECT MAX(id_egreso) FROM egreso)+1,CURRENT_DATE,CONCAT('Compra ',auxNombre));
 	INSERT INTO compra VALUES ((SELECT MAX(id_egreso) FROM egreso));
+	INSERT INTO actualiza (id_ingrediente,id_egreso) VALUES (NEW.id_ingrediente,(SELECT MAX(id_egreso) FROM egreso));
 
 	ELSIF(SELECT stock
 	FROM ingrediente AS i
@@ -209,6 +211,8 @@ BEGIN
 	INSERT INTO egreso(id_egreso,fecha_egreso,descripcion) VALUES 
 	((SELECT MAX(id_egreso) FROM egreso)+1,CURRENT_DATE,CONCAT('Compra ',auxNombre));
 	INSERT INTO compra VALUES ((SELECT MAX(id_egreso) FROM egreso));
+	INSERT INTO actualiza (id_ingrediente,id_egreso) VALUES (NEW.id_ingrediente,(SELECT MAX(id_egreso) FROM egreso));
+
 	END IF;
 
 	RETURN NEW;
@@ -223,6 +227,29 @@ EXECUTE PROCEDURE bajo_stock();
 UPDATE ingrediente
 SET stock = 15
 WHERE id_ingrediente = 3;
+
+CREATE OR REPLACE FUNCTION actualizar_stock()
+RETURNS TRIGGER AS $$
+DECLARE
+auxVal INT := (SELECT valor_unitario FROM ingrediente AS i WHERE i.id_ingrediente = NEW.id_ingrediente);
+BEGIN
+	IF(NEW.estado_actualiza = 'actualizado') THEN
+		UPDATE egreso SET total = auxVal*NEW.cantidad_actualiza WHERE egreso.id_egreso = NEW.id_egreso;
+		UPDATE ingrediente SET stock = stock+NEW.cantidad_actualiza WHERE ingrediente.id_ingrediente = NEW.id_ingrediente;
+	RETURN NEW;
+	END IF;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER bajo_stock
+AFTER UPDATE ON actualiza
+FOR EACH ROW 
+EXECUTE PROCEDURE actualizar_stock();
+
+UPDATE actualiza
+SET cantidad_actualiza = 20,
+	estado_actualiza = 'actualizado'
+WHERE id_egreso = 15;
 
 SELECT precio('Hamburguesa1');
 SELECT precio_pedido(1);

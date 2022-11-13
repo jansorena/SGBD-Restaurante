@@ -230,14 +230,14 @@ class clientes(customtkinter.CTkToplevel):
             cur = conn.cursor()
 
             # Ejecutar los comandos
-            cur.execute(commands)
+            cur.execute(commands,(rut[0],))
             pedidos = cur.fetchall()
 
             for item in self.tree_pedidos.get_children():
                 self.tree_pedidos.delete(item)
 
             for pedido in pedidos:
-                self.tree.insert('', END, values=pedido)
+                self.tree_pedidos.insert('', END, values=pedido)
 
             # Cerrar la comunicacion con la base de datos
             cur.close()

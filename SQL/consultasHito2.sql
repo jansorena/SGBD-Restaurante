@@ -7,7 +7,8 @@ INSERT INTO ingrediente(id_ingrediente,nombre,stock,u_m,fecha_exp,valor_unitario
 (5,'carne',200,'kg','2022-10-25',2000),
 (6,'cebolla morada',100,'unidad','2022-10-25',400),
 (7,'tomate',30,'kg','2022-10-25',800),
-(8,'lechuga',28,'kg','2022-10-25',1000);
+(8,'lechuga',28,'kg','2022-10-25',1000),
+(9,'aceite',20,'L','2022-10-25',2500);
 
 /* Hamburguesa1 y Hamburguesa2*/
 INSERT INTO producto(id_producto,nombre,porcentaje_ganancia,tmp_preparacion) VALUES
@@ -188,31 +189,34 @@ BEGIN
 	WHERE i.id_ingrediente = NEW.id_ingrediente AND
 		i.u_m = 'unidad' AND
 		i.stock <= 20) <= 20 THEN
-	INSERT INTO egreso(id_egreso,fecha_egreso,descripcion) VALUES 
-	((SELECT MAX(id_egreso) FROM egreso)+1,CURRENT_DATE,CONCAT('Compra ',auxNombre));
-	INSERT INTO compra VALUES ((SELECT MAX(id_egreso) FROM egreso));
-	INSERT INTO actualiza (id_ingrediente,id_egreso) VALUES (NEW.id_ingrediente,(SELECT MAX(id_egreso) FROM egreso));
-	
+        IF(SELECT COUNT(*) FROM actualiza AS a WHERE a.id_ingrediente = NEW.id_ingrediente) = 0 THEN
+            INSERT INTO egreso(id_egreso,fecha_egreso,descripcion) VALUES 
+            ((SELECT MAX(id_egreso) FROM egreso)+1,CURRENT_DATE,CONCAT('Compra ',auxNombre));
+            INSERT INTO compra VALUES ((SELECT MAX(id_egreso) FROM egreso));
+            INSERT INTO actualiza (id_ingrediente,id_egreso) VALUES (NEW.id_ingrediente,(SELECT MAX(id_egreso) FROM egreso));
+        END IF;
 	ELSIF(SELECT stock
 	FROM ingrediente AS i
 	WHERE i.id_ingrediente = NEW.id_ingrediente AND
 		i.u_m = 'kg' AND
 		i.stock <= 5) <= 5 THEN
-	INSERT INTO egreso(id_egreso,fecha_egreso,descripcion) VALUES 
-	((SELECT MAX(id_egreso) FROM egreso)+1,CURRENT_DATE,CONCAT('Compra ',auxNombre));
-	INSERT INTO compra VALUES ((SELECT MAX(id_egreso) FROM egreso));
-	INSERT INTO actualiza (id_ingrediente,id_egreso) VALUES (NEW.id_ingrediente,(SELECT MAX(id_egreso) FROM egreso));
-
+        IF(SELECT COUNT(*) FROM actualiza AS a WHERE a.id_ingrediente = NEW.id_ingrediente) = 0 THEN
+	        INSERT INTO egreso(id_egreso,fecha_egreso,descripcion) VALUES 
+	        ((SELECT MAX(id_egreso) FROM egreso)+1,CURRENT_DATE,CONCAT('Compra ',auxNombre));
+	        INSERT INTO compra VALUES ((SELECT MAX(id_egreso) FROM egreso));
+	        INSERT INTO actualiza (id_ingrediente,id_egreso) VALUES (NEW.id_ingrediente,(SELECT MAX(id_egreso) FROM egreso));
+        END IF;
 	ELSIF(SELECT stock
 	FROM ingrediente AS i
 	WHERE i.id_ingrediente = NEW.id_ingrediente AND
 		i.u_m = 'L' AND
 		i.stock <= 3) <= 3 THEN
-	INSERT INTO egreso(id_egreso,fecha_egreso,descripcion) VALUES 
-	((SELECT MAX(id_egreso) FROM egreso)+1,CURRENT_DATE,CONCAT('Compra ',auxNombre));
-	INSERT INTO compra VALUES ((SELECT MAX(id_egreso) FROM egreso));
-	INSERT INTO actualiza (id_ingrediente,id_egreso) VALUES (NEW.id_ingrediente,(SELECT MAX(id_egreso) FROM egreso));
-
+            IF(SELECT COUNT(*) FROM actualiza AS a WHERE a.id_ingrediente = NEW.id_ingrediente) = 0 THEN
+            INSERT INTO egreso(id_egreso,fecha_egreso,descripcion) VALUES 
+	        ((SELECT MAX(id_egreso) FROM egreso)+1,CURRENT_DATE,CONCAT('Compra ',auxNombre));
+	        INSERT INTO compra VALUES ((SELECT MAX(id_egreso) FROM egreso));
+	        INSERT INTO actualiza (id_ingrediente,id_egreso) VALUES (NEW.id_ingrediente,(SELECT MAX(id_egreso) FROM egreso));
+        END IF;
 	END IF;
 
 	RETURN NEW;
@@ -231,8 +235,8 @@ WHERE id_ingrediente = 3;
 CREATE OR REPLACE FUNCTION actualiza_actualizado()
 RETURNS TRIGGER AS $$
 BEGIN
-	IF(NEW.cantidad_actualiza != NULL) THEN
-		UPDATE actualiza SET estado_actualiza = 'actualizado' WHERE id_ingrediente = NEW.id_ingrediente AND id_egreso = NEW.id_egreso;
+	IF(SELECT cantidad_actualiza FROM actualiza AS a WHERE a.id_egreso = NEW.id_egreso AND a.cantidad_actualiza >= 1) >= 1   THEN
+		NEW.estado_actualiza := 'actualizado';
 	END IF;
 	RETURN NEW;
 END
@@ -318,7 +322,7 @@ EXECUTE PROCEDURE borrar_egreso_nulo();
 
 UPDATE actualiza
 SET cantidad_actualiza = 20
-WHERE id_egreso = 15;
+WHERE id_egreso = 11;
 
 CREATE OR REPLACE FUNCTION pedido_completado()
 RETURNS TRIGGER AS $$

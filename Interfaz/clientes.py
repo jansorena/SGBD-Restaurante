@@ -14,6 +14,7 @@ class clientes(customtkinter.CTkToplevel):
         self.rowconfigure(5,minsize=20)
         self.rowconfigure(7,minsize=20)
         self.rowconfigure(9,minsize=20)
+        self.columnconfigure(3,minsize=10)
 
         # Cuadros de texto
         self.rut = customtkinter.CTkEntry(self, width=300)
@@ -38,10 +39,11 @@ class clientes(customtkinter.CTkToplevel):
         self.mostrar_clientes_btn.grid(row=6,column=0,columnspan=2, ipadx = 72)
         self.editar_clientes_btn = customtkinter.CTkButton(self,text="Editar cliente", command=self.editar_clientes)
         self.editar_clientes_btn.grid(row=8,column=0,columnspan=2, ipadx = 72)
-        # Treeview
+        
+        # Treeview clientes
         columnas = ('RUT','Nombre','Apellido')
         self.tree = ttk.Treeview(self,columns=columnas,show='headings')
-        self.tree.grid(row=10,column=0,columnspan=2,ipady=150)
+        self.tree.grid(row=10,column=0,columnspan=2,ipady=100)
 
         self.tree.heading('RUT', text='RUT')
         self.tree.heading('Nombre', text='Nombre')
@@ -50,11 +52,46 @@ class clientes(customtkinter.CTkToplevel):
          # add a scrollbar
         scrollbar = ttk.Scrollbar(self, orient=tk.VERTICAL, command=self.tree.yview)
         self.tree.configure(yscroll=scrollbar.set)
-        scrollbar.grid(row=10, column=2)
+        scrollbar.grid(row=10, column=2,ipady=191)
 
+        # Treeview pedidos
+        columnas_pedidos = ('id_pedido','valor_pedido','estado_pedido','fecha_pedido')
+
+        self.tree_pedidos = ttk.Treeview(self,columns=columnas_pedidos,show='headings')
+        self.tree_pedidos.grid(row=1,column=4,rowspan=10, ipady=250, ipadx=10)
+        self.tree_pedidos.column('id_pedido',width=150)
+        self.tree_pedidos.heading('id_pedido', text='ID')
+        self.tree_pedidos.column('valor_pedido',width=150)
+        self.tree_pedidos.heading('valor_pedido', text='Valor')
+        self.tree_pedidos.column('estado_pedido',width=150)
+        self.tree_pedidos.heading('estado_pedido', text='Estado')
+        self.tree_pedidos.column('fecha_pedido',width=150)
+        self.tree_pedidos.heading('fecha_pedido', text='Fecha')
+    
+        self.pedido_label = customtkinter.CTkLabel(self,text="Pedidos")
+        self.pedido_label.grid(row=0,column=4)     
+
+        # add a scrollbar
+        scrollbar_pedidos = ttk.Scrollbar(self, orient=tk.VERTICAL, command=self.tree_pedidos.yview)
+        self.tree_pedidos.configure(yscroll=scrollbar.set)
+        scrollbar_pedidos.grid(row=1, column=5)
+
+        #mostrar_pedidos
+        self.tree.bind('<<TreeviewSelect>>', self.mostrar_pedidos)
+   
     def editar_clientes(self):
-        sql = """
+        sql_nombre = """
+        UPDATE proyecto.persona as pe
+        SET nombre = %s
+        FROM proyecto.cliente as cl
+        WHERE cl.rut = %s AND pe.rut = cl.rut;
+        """
 
+        sql_apellido ="""
+        UPDATE proyecto.persona as pe
+        SET apellido = %s
+        FROM proyecto.cliente as cl
+        WHERE cl.rut = %s AND pe.rut = cl.rut;
         """
         conn = None
         try:
@@ -72,7 +109,11 @@ class clientes(customtkinter.CTkToplevel):
             nombre_agregar = self.nombre.get()
             apellido_agregar = self.apellido.get()
 
-            cur.execute(sql,(rut_agregar,nombre_agregar,apellido_agregar))
+            if rut_agregar != "" and nombre_agregar != "":
+                cur.execute(sql_nombre,(nombre_agregar,rut_agregar))
+
+            if rut_agregar != "" and apellido_agregar != "":
+                cur.execute(sql_apellido,(apellido_agregar,rut_agregar))
 
             # Cerrar la comunicacion con la base de datos
             cur.close()
@@ -163,3 +204,50 @@ class clientes(customtkinter.CTkToplevel):
         finally:
             if conn is not None:
                 conn.close()
+
+    def mostrar_pedidos(self,event):
+        curItem = self.tree.focus()
+        rut = self.tree.item(curItem,'values')
+        #print(rut[0])
+
+        # Consultar usuarios en la base de datos
+        commands = (
+            """
+            SELECT pe.id_pedido, pe.valor_pedido, pe.estado_pedido, pe.fecha_pedido
+            FROM proyecto.pedido as pe, proyecto.cliente as c
+            WHERE c.rut = %s and c.rut = pe.rut
+            """
+        )
+        conn = None
+        try:
+            # Leer los parametros de configuracion
+            params = config()
+
+            # Conectar a las base de datos
+            conn = psycopg2.connect(**params)
+
+            # Crear cursor
+            cur = conn.cursor()
+
+            # Ejecutar los comandos
+            cur.execute(commands)
+            pedidos = cur.fetchall()
+
+            for item in self.tree_pedidos.get_children():
+                self.tree_pedidos.delete(item)
+
+            for pedido in pedidos:
+                self.tree.insert('', END, values=pedido)
+
+            # Cerrar la comunicacion con la base de datos
+            cur.close()
+
+            # Commit los cambios
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+

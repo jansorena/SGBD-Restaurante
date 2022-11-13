@@ -232,7 +232,7 @@ UPDATE ingrediente
 SET stock = 15
 WHERE id_ingrediente = 3;
 
-CREATE OR REPLACE FUNCTION actualiza_actualizado()
+/*CREATE OR REPLACE FUNCTION actualiza_actualizado()
 RETURNS TRIGGER AS $$
 BEGIN
 	IF(SELECT cantidad_actualiza FROM actualiza AS a WHERE a.id_egreso = NEW.id_egreso AND a.cantidad_actualiza >= 1) >= 1   THEN
@@ -245,7 +245,7 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER actualiza_actualizado
 AFTER UPDATE ON actualiza
 FOR EACH ROW 
-EXECUTE PROCEDURE actualiza_actualizado();
+EXECUTE PROCEDURE actualiza_actualizado();*/
 
 CREATE OR REPLACE FUNCTION actualizar_stock()
 RETURNS TRIGGER AS $$
@@ -279,50 +279,9 @@ AFTER UPDATE ON actualiza
 FOR EACH ROW 
 EXECUTE PROCEDURE actualizar_total_egreso_por_compra();
 
-CREATE OR REPLACE FUNCTION borrar_actualiza_NULLS()
-RETURNS TRIGGER AS $$
-BEGIN
-	IF(NEW.estado_actualiza = 'actualizado') THEN
-		DELETE FROM actualiza AS a WHERE a.id_ingrediente = NEW.id_ingrediente AND a.estado_actualiza = 'no actualizado';		
-	END IF;
-	RETURN NEW;
-END
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER borrar_actualiza_NULLS
-AFTER UPDATE ON actualiza
-FOR EACH ROW 
-EXECUTE PROCEDURE borrar_actualiza_NULLS();
-
-CREATE OR REPLACE FUNCTION borrar_compra_nula()
-RETURNS TRIGGER AS $$
-BEGIN
-	DELETE FROM compra AS c WHERE c.id_egreso = OLD.id_egreso;
-	RETURN NULL;
-END
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER borrar_compras_nulas
-AFTER DELETE ON actualiza
-FOR EACH ROW 
-EXECUTE PROCEDURE borrar_compra_nula();
-
-CREATE OR REPLACE FUNCTION borrar_egreso_nulo()
-RETURNS TRIGGER AS $$
-BEGIN
-	DELETE FROM egreso AS e WHERE e.id_egreso = OLD.id_egreso;
-	RETURN NULL;
-END
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER borrar_egreso_nulo
-AFTER DELETE ON compra
-FOR EACH ROW 
-EXECUTE PROCEDURE borrar_egreso_nulo();
-
-UPDATE actualiza
-SET cantidad_actualiza = 20
-WHERE id_egreso = 11;
+UPDATE actualiza 
+SET cantidad_actualiza = 20, estado_actualiza = 'actualizado' 
+WHERE id_egreso = 14;
 
 CREATE OR REPLACE FUNCTION pedido_completado()
 RETURNS TRIGGER AS $$

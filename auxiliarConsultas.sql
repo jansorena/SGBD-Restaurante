@@ -50,16 +50,3 @@ EXECUTE PROCEDURE bajo_stock();
 UPDATE ingrediente
 SET stock = 15
 WHERE id_ingrediente = 3;
-
-CREATE OR REPLACE FUNCTION actualiza_actualizado()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.estado_actualiza := 'actualizado';
-	RETURN NEW;
-END
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER actualiza_actualizado
-AFTER UPDATE ON actualiza
-FOR EACH ROW 
-EXECUTE PROCEDURE actualiza_actualizado();

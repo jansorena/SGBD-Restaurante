@@ -228,23 +228,28 @@ UPDATE ingrediente
 SET stock = 15
 WHERE id_ingrediente = 3;
 
+CREATE OR REPLACE FUNCTION actualiza_actualizado()
+RETURNS TRIGGER AS $$
+BEGIN
+	IF(NEW.cantidad_actualiza != NULL) THEN
+		UPDATE actualiza SET estado_actualiza = 'actualizado' WHERE id_ingrediente = NEW.id_ingrediente AND id_egreso = NEW.id_egreso;
+	END IF;
+	RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER actualiza_actualizado
+AFTER UPDATE ON actualiza
+FOR EACH ROW 
+EXECUTE PROCEDURE actualiza_actualizado();
+
 CREATE OR REPLACE FUNCTION actualizar_stock()
 RETURNS TRIGGER AS $$
-DECLARE
-auxVal INT := (SELECT valor_unitario FROM ingrediente AS i WHERE i.id_ingrediente = NEW.id_ingrediente);
 BEGIN
 	IF(NEW.estado_actualiza = 'actualizado') THEN
-		UPDATE egreso SET total = auxVal*NEW.cantidad_actualiza WHERE id_egreso = NEW.id_egreso;
 		UPDATE ingrediente SET stock = stock+NEW.cantidad_actualiza WHERE id_ingrediente = NEW.id_ingrediente;
-		DELETE actualiza FROM actualiza AS a WHERE a.id_ingrediente = NEW.id_ingrediente AND a.estado_actualiza = 'no actualizado';
-		DELETE compra FROM compra AS c, egreso AS e, ingrediente AS i 
-		WHERE  c.id_egreso = e.id_egreso AND i.id_ingrediente = NEW.id_ingrediente AND
-			e.descripcion = CONCAT('Compra ',i.nombre) AND e.total = NULL;
-		DELETE egreso FROM egreso AS e, ingrediente AS i
-		WHERE  i.id_ingrediente = NEW.id_ingrediente AND
-			e.descripcion = CONCAT('Compra ',i.nombre) AND e.total = NULL;
-	RETURN NEW;
 	END IF;
+	RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
 
@@ -253,15 +258,73 @@ AFTER UPDATE ON actualiza
 FOR EACH ROW 
 EXECUTE PROCEDURE actualizar_stock();
 
+CREATE OR REPLACE FUNCTION actualizar_total_egreso_por_compra()
+RETURNS TRIGGER AS $$
+DECLARE
+auxVal INT := (SELECT valor_unitario FROM ingrediente AS i WHERE i.id_ingrediente = NEW.id_ingrediente);
+BEGIN
+	IF(NEW.estado_actualiza = 'actualizado') THEN
+		UPDATE egreso SET total = auxVal*NEW.cantidad_actualiza WHERE id_egreso = NEW.id_egreso;
+	END IF;
+	RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER actualizar_total_egreso_por_compra
+AFTER UPDATE ON actualiza
+FOR EACH ROW 
+EXECUTE PROCEDURE actualizar_total_egreso_por_compra();
+
+CREATE OR REPLACE FUNCTION borrar_actualiza_NULLS()
+RETURNS TRIGGER AS $$
+BEGIN
+	IF(NEW.estado_actualiza = 'actualizado') THEN
+		DELETE FROM actualiza AS a WHERE a.id_ingrediente = NEW.id_ingrediente AND a.estado_actualiza = 'no actualizado';		
+	END IF;
+	RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER borrar_actualiza_NULLS
+AFTER UPDATE ON actualiza
+FOR EACH ROW 
+EXECUTE PROCEDURE borrar_actualiza_NULLS();
+
+CREATE OR REPLACE FUNCTION borrar_compra_nula()
+RETURNS TRIGGER AS $$
+BEGIN
+	DELETE FROM compra AS c WHERE c.id_egreso = OLD.id_egreso;
+	RETURN NULL;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER borrar_compras_nulas
+AFTER DELETE ON actualiza
+FOR EACH ROW 
+EXECUTE PROCEDURE borrar_compra_nula();
+
+CREATE OR REPLACE FUNCTION borrar_egreso_nulo()
+RETURNS TRIGGER AS $$
+BEGIN
+	DELETE FROM egreso AS e WHERE e.id_egreso = OLD.id_egreso;
+	RETURN NULL;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER borrar_egreso_nulo
+AFTER DELETE ON compra
+FOR EACH ROW 
+EXECUTE PROCEDURE borrar_egreso_nulo();
+
 UPDATE actualiza
-SET cantidad_actualiza = 20,
-	estado_actualiza = 'actualizado'
+SET cantidad_actualiza = 20
 WHERE id_egreso = 15;
 
 CREATE OR REPLACE FUNCTION pedido_completado()
-RETURN TRIGGER AS $$
+RETURNS TRIGGER AS $$
 BEGIN
-	UPDATE ON pedido SET estado_pedido = 'entregado' WHERE id_pedido = NEW.id_pedido;
+	UPDATE pedido SET estado_pedido = 'entregado' WHERE id_pedido = NEW.id_pedido;
+	RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
 

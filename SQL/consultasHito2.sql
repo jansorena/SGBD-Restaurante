@@ -296,6 +296,21 @@ AFTER INSERT ON boleta
 FOR EACH ROW
 EXECUTE PROCEDURE pedido_completado();
 
+CREATE OR REPLACE FUNCTION liberar_mesa()
+RETURNS TRIGGER AS $$
+DECLARE 
+auxNumMesa INT := (SELECT o.num_mesa FROM ocupa AS o WHERE o.id_pedido = NEW.id_pedido);
+BEGIN
+	UPDATE mesa SET estado_mesa = 'libre' WHERE num_mesa = auxNumMesa;
+	RETURN NEW;
+END 
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER liberar_mesa
+AFTER INSERT ON boleta
+FOR EACH ROW
+EXECUTE PROCEDURE liberar_mesa();
+
 SELECT precio('Hamburguesa1');
 SELECT precio_pedido(1);
 SELECT ganancia(CURRENT_DATE);

@@ -77,7 +77,7 @@ class clientes(customtkinter.CTkToplevel):
         scrollbar_pedidos.grid(row=1, column=5)
 
         #mostrar_pedidos
-        self.tree.bind('<<TreeviewSelect>>', self.mostrar_pedidos)
+        self.tree.bind('<ButtonRelease-1>', self.mostrar_pedidos)
    
     def editar_clientes(self):
         sql_nombre = """
@@ -148,9 +148,9 @@ class clientes(customtkinter.CTkToplevel):
             nombre_agregar = self.nombre.get()
             apellido_agregar = self.apellido.get()
 
-            cur.execute(sql,(rut_agregar,nombre_agregar,apellido_agregar))
-
-            cur.execute(sql2,(rut_agregar,))
+            if(rut_agregar != ""):
+                cur.execute(sql,(rut_agregar,nombre_agregar,apellido_agregar))
+                cur.execute(sql2,(rut_agregar,))
 
             # Cerrar la comunicacion con la base de datos
             cur.close()
@@ -187,6 +187,11 @@ class clientes(customtkinter.CTkToplevel):
             # Ejecutar los comandos
             cur.execute(commands)
             usuarios = cur.fetchall()
+            
+            try:
+                self.tree.selection_remove(self.tree.selection()[0])
+            except:
+                pass
 
             for item in self.tree.get_children():
                 self.tree.delete(item)
@@ -244,10 +249,9 @@ class clientes(customtkinter.CTkToplevel):
 
             # Commit los cambios
             conn.commit()
+
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
         finally:
             if conn is not None:
                 conn.close()
-
-

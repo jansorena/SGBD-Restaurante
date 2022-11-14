@@ -130,6 +130,18 @@ INSERT INTO tiene VALUES
 (10,1234,16),
 (10,1235,3);
 
+INSERT INTO mesa(num_mesa) VALUES
+(1),
+(2),
+(3),
+(4),
+(5),
+(6),
+(7),
+(8),
+(9),
+(10);
+
 CREATE OR REPLACE FUNCTION precio(nombre_producto TEXT)
 RETURNS REAL AS $$
 DECLARE precio_producto REAL;
@@ -310,6 +322,26 @@ CREATE TRIGGER liberar_mesa
 AFTER INSERT ON boleta
 FOR EACH ROW
 EXECUTE PROCEDURE liberar_mesa();
+
+CREATE OR REPLACE FUNCTION mesa_ocupada()
+RETURNS TRIGGER AS $$
+BEGIN
+	UPDATE mesa SET estado_mesa = 'ocupada' WHERE num_mesa = NEW.num_mesa;
+	RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER mesa_ocupada
+AFTER INSERT ON ocupa
+FOR EACH ROW
+EXECUTE PROCEDURE mesa_ocupada();
+
+CREATE OR REPLACE VIEW mesas_libres AS
+SELECT num_mesa
+FROM mesa AS m
+WHERE m.estado_mesa = 'libre';
+
+SELECT * FROM mesas_libres;
 
 SELECT precio('Hamburguesa1');
 SELECT precio_pedido(1);

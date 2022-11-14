@@ -15,8 +15,7 @@ sueldo INT);
 
 CREATE TABLE mesa(
 num_mesa INT PRIMARY KEY,
-estado_mesa VARCHAR(100) DEFAULT 'LIBRE', 
-CHECK(estado_mesa IN ('libre','ocupada')));
+estado_mesa VARCHAR(100) DEFAULT 'LIBRE' CHECK(estado_mesa IN ('libre','ocupada')));
 
 CREATE TABLE pedido(
 id_pedido INT PRIMARY KEY,

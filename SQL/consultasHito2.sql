@@ -343,6 +343,13 @@ WHERE m.estado_mesa = 'libre';
 
 SELECT * FROM mesas_libres;
 
+CREATE OR REPLACE VIEW pedidos_pendientes AS
+SELECT p.id_pedido, ps.nombre, c.RUT
+FROM pedido AS p, cliente AS c, persona AS ps
+WHERE p.estado_pedido = 'no entregado' AND p.RUT = c.RUT AND c.RUT = ps.RUT;
+
+SELECT * FROM pedidos_pendientes;
+
 SELECT precio('Hamburguesa1');
 SELECT precio_pedido(1);
 SELECT ganancia(CURRENT_DATE);

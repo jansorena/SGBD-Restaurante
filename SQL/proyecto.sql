@@ -15,7 +15,7 @@ sueldo INT);
 
 CREATE TABLE mesa(
 num_mesa INT PRIMARY KEY,
-estado_mesa VARCHAR(100) DEFAULT 'LIBRE' CHECK(estado_mesa IN ('libre','ocupada')));
+estado_mesa VARCHAR(100) DEFAULT 'libre' CHECK(estado_mesa IN ('libre','ocupada')));
 
 CREATE TABLE pedido(
 id_pedido INT PRIMARY KEY,
@@ -48,7 +48,7 @@ fecha_venta DATE DEFAULT CURRENT_DATE);
 CREATE TABLE ingrediente(
 id_ingrediente INT PRIMARY KEY,
 nombre VARCHAR(100),
-stock INT CHECK(stock >= 0),
+stock REAL CHECK(stock >= 0),
 u_m VARCHAR(100) CHECK(u_m IN ('unidad','kg','L')),
 fecha_exp DATE,
 valor_unitario INT);
@@ -89,7 +89,7 @@ PRIMARY KEY (id_pedido,id_producto));
 CREATE TABLE compone(
 id_producto INT REFERENCES producto(id_producto) ON DELETE RESTRICT ON UPDATE CASCADE,
 id_ingrediente INT REFERENCES ingrediente(id_ingrediente) ON DELETE RESTRICT ON UPDATE CASCADE,
-cantidad_ingrediente FLOAT,
+cantidad_ingrediente REAL,
 PRIMARY KEY (id_producto,id_ingrediente));
 
 CREATE TABLE actualiza(

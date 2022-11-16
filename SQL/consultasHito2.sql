@@ -191,6 +191,10 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
+SELECT precio('Hamburguesa1');
+SELECT precio_pedido(1);
+SELECT ganancia(CURRENT_DATE);
+
 CREATE OR REPLACE FUNCTION bajo_stock()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -350,11 +354,6 @@ WHERE p.estado_pedido = 'no entregado' AND p.RUT = c.RUT AND c.RUT = ps.RUT;
 
 SELECT * FROM pedidos_pendientes;
 
-CREATE OR REPLACE VIEW productos_vendidos AS
-SELECT nombre, cantidad_vendida(nombre)
-FROM producto
-ORDER BY 2 DESC;
-
 CREATE OR REPLACE FUNCTION cantidad_vendida(VARCHAR)
 RETURNS INT AS $$
 DECLARE cantidad INT;
@@ -362,9 +361,22 @@ BEGIN
 	cantidad :=(SELECT SUM(cantidad_producto) FROM producto AS p, tiene AS t WHERE p.id_producto = t.id_producto AND p.nombre = $1);
 	RETURN cantidad;
 END 
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE VIEW productos_vendidos AS
+SELECT nombre, cantidad_vendida(nombre)
+FROM producto
+ORDER BY 2 DESC;
+
+SELECT * FROM productos_vendidos;
+
+CREATE OR REPLACE FUNCTION cantidad_ingrediente_en_producto(nombreI VARCHAR,nombreP VARCHAR)
+RETURNS REAL AS $$
+DECLARE cantidad REAL;
+BEGIN
+	cantidad := (SELECT c.cantidad_ingrediente FROM compone AS c, ingrediente AS i, producto AS p WHERE c.id_ingrediente = i.id_ingrediente AND c.id_producto = p.id_producto AND p.nombre = nombreP AND i.nombre = nombreI);
+	RETURN cantidad;
+END
 $$ LANGUAGE plpgsql
 
-SELECT precio('Hamburguesa1');
-SELECT precio_pedido(1);
-SELECT ganancia(CURRENT_DATE);
-
+SELECT cantidad_ingrediente_en_producto('lechuga','Hamburguesa1');

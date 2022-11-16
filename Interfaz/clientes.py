@@ -49,7 +49,7 @@ class clientes(customtkinter.CTkToplevel):
         self.tree.heading('Nombre', text='Nombre')
         self.tree.heading('Apellido', text='Apellido') 
 
-         # add a scrollbar
+        # add a scrollbar
         scrollbar = ttk.Scrollbar(self, orient=tk.VERTICAL, command=self.tree.yview)
         self.tree.configure(yscroll=scrollbar.set)
         scrollbar.grid(row=10, column=2,ipady=191)

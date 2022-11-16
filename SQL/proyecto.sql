@@ -48,7 +48,7 @@ fecha_venta DATE DEFAULT CURRENT_DATE);
 CREATE TABLE ingrediente(
 id_ingrediente INT PRIMARY KEY,
 nombre VARCHAR(100),
-stock REAL CHECK(stock >= 0),
+stock REAL CHECK(stock >= 0) DEFAULT 0,
 u_m VARCHAR(100) CHECK(u_m IN ('unidad','kg','L')),
 fecha_exp DATE,
 valor_unitario INT);

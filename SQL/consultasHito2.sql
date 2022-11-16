@@ -350,6 +350,20 @@ WHERE p.estado_pedido = 'no entregado' AND p.RUT = c.RUT AND c.RUT = ps.RUT;
 
 SELECT * FROM pedidos_pendientes;
 
+CREATE OR REPLACE VIEW productos_vendidos AS
+SELECT nombre, cantidad_vendida(nombre)
+FROM producto
+ORDER BY 2 DESC;
+
+CREATE OR REPLACE FUNCTION cantidad_vendida(VARCHAR)
+RETURNS INT AS $$
+DECLARE cantidad INT;
+BEGIN
+	cantidad :=(SELECT SUM(cantidad_producto) FROM producto AS p, tiene AS t WHERE p.id_producto = t.id_producto AND p.nombre = $1);
+	RETURN cantidad;
+END 
+$$ LANGUAGE plpgsql
+
 SELECT precio('Hamburguesa1');
 SELECT precio_pedido(1);
 SELECT ganancia(CURRENT_DATE);

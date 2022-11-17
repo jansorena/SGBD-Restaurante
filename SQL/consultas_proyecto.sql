@@ -243,10 +243,10 @@ $$ LANGUAGE plpgsql
 SELECT cantidad_ingrediente_en_producto('lechuga','Hamburguesa1');
 
 CREATE OR REPLACE FUNCTION ingrediente_vencido()
-RETURNS TEXT AS $$
+RETURNS void AS $$
 BEGIN
-	UPDATE ingrediente SET fecha_exp = NULL, stock = 0 WHERE fecha_exp >= CURRENT_DATE;
-	RETURN 'actualizado';
+	UPDATE ingrediente SET stock = 0 WHERE fecha_exp < CURRENT_DATE;
+	UPDATE ingrediente SET fecha_exp = NULL WHERE fecha_exp < CURRENT_DATE;
 END
 $$ LANGUAGE plpgsql;
 

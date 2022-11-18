@@ -2,7 +2,7 @@ import customtkinter
 from PIL import Image, ImageTk
 import os
 import tkinter
-import clientes, ingredientes
+import clientes, ingredientes, trabajadores
 
 PATH = os.path.dirname(os.path.realpath(__file__))
 customtkinter.set_appearance_mode("light")
@@ -33,7 +33,8 @@ class MainMenu(customtkinter.CTk):
         command=self.window_clientes)
         self.button_clientes.grid(row=1,column=1,ipadx=50,ipady=50)
 
-        self.button_trabajadores = customtkinter.CTkButton(self, text="Trabajadores", image=self.trabajadores_image)
+        self.button_trabajadores = customtkinter.CTkButton(self, text="Trabajadores", image=self.trabajadores_image,
+        command=self.window_trabajadores)
         self.button_trabajadores.grid(row=1,column=3,ipadx=50,ipady=50)
 
         self.button_pedidos = customtkinter.CTkButton(self, text="Pedidos",image=self.pedidos_image)
@@ -58,6 +59,9 @@ class MainMenu(customtkinter.CTk):
     
     def window_ingredientes(self):
         new_window_ingredientes = ingredientes.ingredientes(self)
+
+    def window_trabajadores(self):
+        new_window_trabajadores = trabajadores.trabajadores(self)
 
 if __name__ == "__main__":
     app = MainMenu()

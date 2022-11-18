@@ -75,7 +75,49 @@ class ingredientes(customtkinter.CTkToplevel):
         pass
 
     def mostrar_ingredientes(self):
-        pass
+        # Consultar usuarios en la base de datos
+        commands = (
+            """
+            SELECT *
+            FROM proyecto.ingrediente as i
+            """
+        )
+        conn = None
+        try:
+            # Leer los parametros de configuracion
+            params = config()
+
+            # Conectar a las base de datos
+            conn = psycopg2.connect(**params)
+
+            # Crear cursor
+            cur = conn.cursor()
+
+            # Ejecutar los comandos
+            cur.execute(commands)
+            ingredientes = cur.fetchall()
+            
+            try:
+                self.tree.selection_remove(self.tree.selection()[0])
+            except:
+                pass
+
+            for item in self.tree.get_children():
+                self.tree.delete(item)
+
+            for ingrediente in ingredientes:
+                self.tree.insert('', END, values=ingrediente)
+
+            # Cerrar la comunicacion con la base de datos
+            cur.close()
+
+            # Commit los cambios
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
 
     def editar_ingredientes(self):
         pass

@@ -86,9 +86,11 @@ AFTER UPDATE ON ingrediente
 FOR EACH ROW 
 EXECUTE PROCEDURE bajo_stock();
 
+/*
 UPDATE ingrediente
 SET stock = 0
 WHERE id_ingrediente = 3;
+*/
 
 /*CREATE OR REPLACE FUNCTION actualiza_actualizado()
 RETURNS TRIGGER AS $$
@@ -110,6 +112,7 @@ RETURNS TRIGGER AS $$
 BEGIN
 	IF(NEW.estado_actualiza = 'actualizado') THEN
 		UPDATE ingrediente SET stock = stock+NEW.cantidad_actualiza WHERE id_ingrediente = NEW.id_ingrediente;
+		UPDATE ingrediente SET fecha_exp = NEW.fecha_exp WHERE id_ingrediente = NEW.id_ingrediente;
 	END IF;
 	RETURN NEW;
 END
@@ -137,9 +140,11 @@ AFTER UPDATE ON actualiza
 FOR EACH ROW 
 EXECUTE PROCEDURE actualizar_total_egreso_por_compra();
 
+/*
 UPDATE actualiza 
-SET cantidad_actualiza = 20, estado_actualiza = 'actualizado' 
+SET cantidad_actualiza = 20, fecha_exp = '2022-12-31', estado_actualiza = 'actualizado'
 WHERE id_egreso = 11;
+*/
 
 CREATE OR REPLACE FUNCTION pedido_completado()
 RETURNS TRIGGER AS $$
@@ -187,14 +192,14 @@ SELECT num_mesa
 FROM mesa AS m
 WHERE m.estado_mesa = 'libre';
 
-SELECT * FROM mesas_libres;
+--SELECT * FROM mesas_libres;
 
 CREATE OR REPLACE VIEW pedidos_pendientes AS
 SELECT p.id_pedido, ps.nombre, c.RUT
 FROM pedido AS p, cliente AS c, persona AS ps
 WHERE p.estado_pedido = 'no entregado' AND p.RUT = c.RUT AND c.RUT = ps.RUT;
 
-SELECT * FROM pedidos_pendientes;
+--SELECT * FROM pedidos_pendientes;
 
 CREATE OR REPLACE FUNCTION cantidad_vendida(VARCHAR)
 RETURNS INT AS $$
@@ -210,7 +215,7 @@ SELECT nombre, cantidad_vendida(nombre)
 FROM producto
 ORDER BY 2 DESC;
 
-SELECT * FROM productos_vendidos;
+--SELECT * FROM productos_vendidos;
 
 CREATE OR REPLACE FUNCTION cantidad_ingrediente_en_producto(nombreI VARCHAR,nombreP VARCHAR)
 RETURNS REAL AS $$
@@ -219,9 +224,9 @@ BEGIN
 	cantidad := (SELECT c.cantidad_ingrediente FROM compone AS c, ingrediente AS i, producto AS p WHERE c.id_ingrediente = i.id_ingrediente AND c.id_producto = p.id_producto AND p.nombre = nombreP AND i.nombre = nombreI);
 	RETURN cantidad;
 END
-$$ LANGUAGE plpgsql
+$$ LANGUAGE plpgsql;
 
-SELECT cantidad_ingrediente_en_producto('lechuga','Hamburguesa1');
+--SELECT cantidad_ingrediente_en_producto('lechuga','Hamburguesa1');
 
 CREATE OR REPLACE FUNCTION ingrediente_vencido()
 RETURNS void AS $$
@@ -231,4 +236,4 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
-SELECT ingrediente_vencido();
+--SELECT ingrediente_vencido();

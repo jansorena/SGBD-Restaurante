@@ -60,17 +60,17 @@ CREATE OR REPLACE FUNCTION bajo_stock()
 RETURNS TRIGGER AS $$
 DECLARE
 auxNombre VARCHAR(100) := NEW.nombre;
+cont INT := (SELECT COUNT(*) FROM actualiza AS a WHERE a.id_ingrediente = NEW.id_ingrediente);
 BEGIN
 	IF(SELECT stock
 	FROM ingrediente AS i
 	WHERE i.id_ingrediente = NEW.id_ingrediente AND i.stock <= 0) <= 0 THEN
-        IF(SELECT COUNT(*) FROM actualiza AS a WHERE a.id_ingrediente = NEW.id_ingrediente) = 0 THEN
+        IF (cont = 0) THEN
             INSERT INTO egreso(id_egreso,fecha_egreso,descripcion) VALUES 
             ((SELECT MAX(id_egreso) FROM egreso)+1,CURRENT_DATE,CONCAT('Compra ',auxNombre));
             INSERT INTO compra VALUES ((SELECT MAX(id_egreso) FROM egreso));
             INSERT INTO actualiza (id_ingrediente,id_egreso) VALUES (NEW.id_ingrediente,(SELECT MAX(id_egreso) FROM egreso));
-		ELSIF((SELECT COUNT(*) FROM actualiza AS a WHERE a.id_ingrediente = NEW.id_ingrediente) > 0 AND 
-		((SELECT e.total FROM egreso AS e, actualiza AS a WHERE a.id_ingrediente = NEW.id_ingrediente AND e.id_egreso = a.id_egreso)) > 0) THEN
+		ELSIF(cont > 0 AND ((SELECT e.total FROM egreso AS e, actualiza AS a WHERE a.id_ingrediente = NEW.id_ingrediente AND e.id_egreso = a.id_egreso)) > 0) THEN
 			INSERT INTO egreso(id_egreso,fecha_egreso,descripcion) VALUES 
             ((SELECT MAX(id_egreso) FROM egreso)+1,CURRENT_DATE,CONCAT('Compra ',auxNombre));
             INSERT INTO compra VALUES ((SELECT MAX(id_egreso) FROM egreso));
@@ -139,7 +139,7 @@ EXECUTE PROCEDURE actualizar_total_egreso_por_compra();
 
 UPDATE actualiza 
 SET cantidad_actualiza = 20, estado_actualiza = 'actualizado' 
-WHERE id_egreso = 14;
+WHERE id_egreso = 11;
 
 CREATE OR REPLACE FUNCTION pedido_completado()
 RETURNS TRIGGER AS $$

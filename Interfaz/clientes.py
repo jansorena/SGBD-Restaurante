@@ -165,7 +165,15 @@ class clientes(customtkinter.CTkToplevel):
                 conn.close()
 
     def mostrar_clientes(self):
-    # Consultar usuarios en la base de datos
+
+        self.rut.delete(0,END)
+        self.nombre.delete(0,END)
+        self.apellido.delete(0,END)
+        
+        for item in self.tree_pedidos.get_children():
+                self.tree_pedidos.delete(item)
+        
+        # Consultar usuarios en la base de datos
         commands = (
             """
             SELECT *
@@ -213,7 +221,17 @@ class clientes(customtkinter.CTkToplevel):
     def mostrar_pedidos(self,event):
         curItem = self.tree.focus()
         rut = self.tree.item(curItem,'values')
-        #print(rut[0])
+        
+        self.rut.delete(0,END)
+        self.nombre.delete(0,END)
+        self.apellido.delete(0,END)
+
+        try:
+            self.rut.insert(0,rut[0])
+            self.nombre.insert(0,rut[1]) 
+            self.apellido.insert(0,rut[2])
+        except:
+            pass
 
         # Consultar usuarios en la base de datos
         commands = (

@@ -69,10 +69,48 @@ class ingredientes(customtkinter.CTkToplevel):
         self.tree.configure(yscroll=scrollbar.set)
         scrollbar.grid(row=11, column=2,ipady=191)
 
-
+        self.tree.bind('<ButtonRelease-1>', self.rellenar_entrada)
 
     def agregar_ingredientes(self):
-        pass
+        # Consultar usuarios en la base de datos
+        sql = """INSERT INTO proyecto.ingrediente(id_ingrediente,nombre,u_m,valor_unitario) VALUES(%s,%s,%s,%s)"""
+        conn = None
+
+        try:
+            # Leer los parametros de configuracion
+            params = config()
+
+            # Conectar a las base de datos
+            conn = psycopg2.connect(**params)
+
+            # Crear cursor
+            cur = conn.cursor()
+
+            # Ejecutar los comandos
+            id_agregar = self.id_ingrediente.get()
+            nombre_agregar = self.nombre_ingrediente.get()
+            u_m_agregar = self.unidad_medida.get()
+            valor_unitario_agregar = self.valor_unitario.get()
+
+            if(id_agregar != ""):
+                cur.execute(sql,(id_agregar,nombre_agregar,u_m_agregar,valor_unitario_agregar))
+
+            self.id_ingrediente.delete(0,END)
+            self.nombre_ingrediente.delete(0,END)
+            self.unidad_medida.delete(0,END)
+            self.valor_unitario.delete(0,END)
+
+            # Cerrar la comunicacion con la base de datos
+            cur.close()
+
+            # Commit los cambios
+            conn.commit()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
 
     def mostrar_ingredientes(self):
         # Consultar usuarios en la base de datos
@@ -120,4 +158,64 @@ class ingredientes(customtkinter.CTkToplevel):
                 conn.close()
 
     def editar_ingredientes(self):
-        pass
+
+        sql_ingrediente = """
+        UPDATE proyecto.ingrediente as i
+        SET nombre = %s, u_m = %s, valor_unitario = %s
+        WHERE i.id_ingrediente = %s;
+        """
+
+        conn = None
+        try:
+            # Leer los parametros de configuracion
+            params = config()
+
+            # Conectar a las base de datos
+            conn = psycopg2.connect(**params)
+
+            # Crear cursor
+            cur = conn.cursor()
+
+            # Ejecutar los comandos
+            id_agregar = self.id_ingrediente.get()
+            nombre_agregar = self.nombre_ingrediente.get()
+            u_m_agregar = self.unidad_medida.get()
+            valor_unitario_agregar = self.valor_unitario.get()
+
+            if id_agregar != "":
+                cur.execute(sql_ingrediente,(nombre_agregar,u_m_agregar,valor_unitario_agregar,id_agregar))
+
+
+            self.id_ingrediente.delete(0,END)
+            self.nombre_ingrediente.delete(0,END)
+            self.unidad_medida.delete(0,END)
+            self.valor_unitario.delete(0,END)
+
+            # Cerrar la comunicacion con la base de datos
+            cur.close()
+
+            # Commit los cambios
+            conn.commit()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+    def rellenar_entrada(self,event):
+        curItem = self.tree.focus()
+        entrada = self.tree.item(curItem,'values')
+
+        self.id_ingrediente.delete(0,END)
+        self.nombre_ingrediente.delete(0,END)
+        self.unidad_medida.delete(0,END)
+        self.valor_unitario.delete(0,END)
+
+        try:
+            self.id_ingrediente.insert(0,entrada[0])
+            self.nombre_ingrediente.insert(0,entrada[1])
+            self.unidad_medida.insert(0,entrada[3])
+            self.valor_unitario.insert(0,entrada[5])
+        except:
+            pass    

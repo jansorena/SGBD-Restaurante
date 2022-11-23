@@ -91,6 +91,7 @@ class productos(customtkinter.CTkToplevel):
         scrollbar_ingredientes.grid(row=13, column=6,ipady=191)
 
         self.tree.bind('<ButtonRelease-1>', self.mostrar_ingredientes)
+        self.tree_ingredientes.bind('<ButtonRelease-1>', self.click_ingredientes)
 
         # ingredientes
         self.id_ingrediente = customtkinter.CTkEntry(self, width=300)
@@ -109,13 +110,60 @@ class productos(customtkinter.CTkToplevel):
         self.editar_ingredientes_btn = customtkinter.CTkButton(self, text="Editar Ingredientes", command=self.editar_ingredientes)
         self.editar_ingredientes_btn.grid(row=9,column=4,columnspan=2, ipadx = 72)
 
-        self.img = self.load_image("/images/hamburguer.jpeg", 170)
-        self.img_label = customtkinter.CTkLabel(self,image=self.img, borderwidth=2, relief='solid')
+        self.hamburguesa1 = self.load_image("/images/Hamburguesa1.jpeg", 170)
+        self.hamburguesa2 = self.load_image("/images/Hamburguesa2.jpeg", 170)
+        self.pan = self.load_image("/images/Pan.jpeg", 170)
+        
+        self.dic = {
+            '1234' : self.hamburguesa1,
+            '1235' : self.hamburguesa2,
+            '1' : self.pan
+        }
+
+        self.img_label = customtkinter.CTkLabel(self, borderwidth=2, relief='solid', text='Imagen Producto',width=170,height=170)
         self.img_label.grid(row=0,column=0,columnspan=2)
 
-    def agregar_productos(self):
-        pass
+        self.img_label2 = customtkinter.CTkLabel(self, borderwidth=2, relief='solid', text='Imagen Ingrediente',width=170,height=170)
+        self.img_label2.grid(row=0,column=4,columnspan=2)
 
+    def agregar_productos(self):
+        # Consultar usuarios en la base de datos
+        sql = """INSERT INTO proyecto.producto(id_producto,nombre,porcentaje_ganancia,tmp_preparacion) VALUES(%s,%s,%s,%s)"""
+        conn = None
+
+        try:
+            # Leer los parametros de configuracion
+            params = config()
+
+            # Conectar a las base de datos
+            conn = psycopg2.connect(**params)
+
+            # Crear cursor
+            cur = conn.cursor()
+
+            # Ejecutar los comandos
+            id_producto_agregar = self.id_producto.get()
+            nombre_agregar = self.nombre.get()
+            porcentaje_ganancia_agregar = self.porc_ganancia.get()
+            tmp_preparacion_agregar = self.tmp_preparacion.get()
+
+            if(id_producto_agregar != ""):
+                cur.execute(sql,(id_producto_agregar,nombre_agregar,porcentaje_ganancia_agregar,tmp_preparacion_agregar))
+
+            # Cerrar la comunicacion con la base de datos
+            cur.close()
+
+            # Commit los cambios
+            conn.commit()
+
+            self.mostrar_productos()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+            
     def mostrar_productos(self):
         self.id_producto.delete(0,END)
         self.nombre.delete(0,END)
@@ -130,6 +178,7 @@ class productos(customtkinter.CTkToplevel):
             """
             SELECT *
             FROM proyecto.producto as p
+            ORDER BY id_producto;
             """
         )
         conn = None
@@ -162,13 +211,70 @@ class productos(customtkinter.CTkToplevel):
                 conn.close()
 
     def editar_productos(self):
-        pass
+        sql = """
+        UPDATE proyecto.producto as p
+        SET nombre = %s, porcentaje_ganancia = %s, tmp_preparacion = %s
+        WHERE p.id_producto = %s;
+        """
+        conn = None
+        try:
+            # Leer los parametros de configuracion
+            params = config()
+
+            # Conectar a las base de datos
+            conn = psycopg2.connect(**params)
+
+            # Crear cursor
+            cur = conn.cursor()
+
+            # Ejecutar los comandos
+
+            id_producto_agregar = self.id_producto.get()
+            nombre_agregar = self.nombre.get()
+            porcentaje_ganancia_agregar = self.porc_ganancia.get()
+            tmp_preparacion_agregar = self.tmp_preparacion.get()
+
+            if(id_producto_agregar != ""):
+                cur.execute(sql,(nombre_agregar,porcentaje_ganancia_agregar,tmp_preparacion_agregar,id_producto_agregar))
+
+            # Cerrar la comunicacion con la base de datos
+            cur.close()
+
+            # Commit los cambios
+            conn.commit()
+
+            self.mostrar_productos()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
 
     def mostrar_ingredientes(self,event):
-
         curItem = self.tree.focus()
         ingred = self.tree.item(curItem,'values')
-       
+
+        self.id_producto.delete(0,END)
+        self.nombre.delete(0,END)
+        self.porc_ganancia.delete(0,END)
+        self.tmp_preparacion.delete(0,END)
+
+        try:
+            self.id_producto.insert(0,ingred[0])
+            self.nombre.insert(0,ingred[1])
+            self.porc_ganancia.insert(0,ingred[3])
+            self.tmp_preparacion.insert(0,ingred[4])
+        except:
+            pass
+
+        self.img_label.configure(image='')
+        try:
+            imagen = self.dic[ingred[0]]
+            self.img_label.configure(image=imagen)
+        except:
+            pass
+        
         # Consultar usuarios en la base de datos
         commands = (
             """
@@ -211,10 +317,102 @@ class productos(customtkinter.CTkToplevel):
                 conn.close()
 
     def agregar_ingredientes(self):
-        pass
+        # Consultar usuarios en la base de datos
+        sql = """INSERT INTO proyecto.compone(id_producto,id_ingrediente,cantidad_ingrediente) VALUES(%s,%s,%s)"""
+        conn = None
+
+        try:
+            # Leer los parametros de configuracion
+            params = config()
+
+            # Conectar a las base de datos
+            conn = psycopg2.connect(**params)
+
+            # Crear cursor
+            cur = conn.cursor()
+
+            # Ejecutar los comandos
+            id_producto_agregar = self.id_producto.get()
+            id_ingrediente_agregar = self.id_ingrediente.get()
+            cantidad_ingrediente_agregar = self.cantidad_ingrediente.get()
+
+            if(id_producto_agregar != "" and id_ingrediente_agregar != "" and cantidad_ingrediente_agregar != ""):
+                cur.execute(sql,(id_producto_agregar,id_ingrediente_agregar,cantidad_ingrediente_agregar))
+
+            # Cerrar la comunicacion con la base de datos
+            cur.close()
+
+            # Commit los cambios
+            conn.commit()
+
+            self.mostrar_ingredientes(self)
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
 
     def editar_ingredientes(self):
-        pass
+        sql = """
+        UPDATE proyecto.compone as c
+        SET cantidad_ingrediente = %s
+        WHERE c.id_producto = %s and c.id_ingrediente = %s;
+        """
+        conn = None
+        try:
+            # Leer los parametros de configuracion
+            params = config()
+
+            # Conectar a las base de datos
+            conn = psycopg2.connect(**params)
+
+            # Crear cursor
+            cur = conn.cursor()
+
+            # Ejecutar los comandos
+
+            # Ejecutar los comandos
+            id_producto_agregar = self.id_producto.get()
+            id_ingrediente_agregar = self.id_ingrediente.get()
+            cantidad_ingrediente_agregar = self.cantidad_ingrediente.get()
+
+            if(id_producto_agregar != "" and id_ingrediente_agregar != "" and cantidad_ingrediente_agregar != ""):
+                cur.execute(sql,(cantidad_ingrediente_agregar,id_producto_agregar,id_ingrediente_agregar))
+
+            # Cerrar la comunicacion con la base de datos
+            cur.close()
+
+            # Commit los cambios
+            conn.commit()
+
+            self.mostrar_ingredientes(self)
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+    def click_ingredientes(self,event):
+        curItem = self.tree_ingredientes.focus()
+        ingred = self.tree_ingredientes.item(curItem,'values')
+
+        self.id_ingrediente.delete(0,END)
+        self.cantidad_ingrediente.delete(0,END)
+
+        try:
+            self.id_ingrediente.insert(0,ingred[0])
+            self.cantidad_ingrediente.insert(0,ingred[2])
+        except:
+            pass
+
+        self.img_label2.configure(image='')
+        try:
+            imagen = self.dic[ingred[0]]
+            self.img_label2.configure(image=imagen)
+        except (Exception) as error:
+            print(error)
 
     def load_image(self, path, image_size):
         """ load rectangular image with path relative to PATH """

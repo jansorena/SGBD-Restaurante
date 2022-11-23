@@ -323,3 +323,23 @@ BEFORE INSERT ON boleta
 FOR EACH ROW
 EXECUTE PROCEDURE rellenar_boleta();
 
+CREATE OR REPLACE FUNCTION check_mesa()
+RETURNS TRIGGER AS $$
+BEGIN
+	IF(SELECT estado_mesa FROM mesa AS m WHERE m.num_mesa = NEW.num_mesa) = 'ocupada' THEN
+		RAISE EXCEPTION 'La mesa esta ocupada';
+	ELSE
+		RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER check_mesa
+BEFORE INSERT OR UPDATE ON ocupa
+FOR EACH ROW
+EXECUTE PROCEDURE check_mesa();
+
+/*UPDATE ocupa SET num_mesa = 4 WHERE rut = '20123456-7';
+INSERT INTO ocupa values
+(8,7,'12786274-5');
+INSERT INTO ocupa values
+(2,7,'12786274-5'); */

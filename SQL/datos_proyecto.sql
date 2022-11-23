@@ -41,7 +41,7 @@ INSERT INTO cliente(RUT,nombre,apellido) VALUES
 ('51986651-K','Adonis','RODRIGUEZ'),
 ('42957743-8','Ajaz','GONZALEZ'),
 ('18864263-2','Akos','FERNANDEZ'),
-('41152666-6','Aldo','LOPEZ'),
+('  ','Aldo','LOPEZ'),
 ('12786274-5','Amets','MARTINEZ'),
 ('84464435-3','Amaro','SANCHEZ'),
 ('19373328-K','Aquiles','PEREZ'),

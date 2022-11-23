@@ -35,7 +35,7 @@ INSERT INTO compone(id_producto,id_ingrediente,cantidad_ingrediente) VALUES
 (1235,8,0.4);
 
 /* persona */
-INSERT INTO persona(RUT,nombre,apellido) VALUES
+INSERT INTO cliente(RUT,nombre,apellido) VALUES
 ('20123456-7','Pedro','Perez'),
 ('87423982-8','Adel','GARCIA'),
 ('51986651-K','Adonis','RODRIGUEZ'),
@@ -48,17 +48,17 @@ INSERT INTO persona(RUT,nombre,apellido) VALUES
 ('32947945-5','Algimantas','GOMEZ');
 
 /* trabajadores */
-INSERT INTO trabajador(RUT,cargo,sueldo) VALUES
-('20123456-7','mesero','500000'),
-('87423982-8','lavaplatos','450000'),
-('51986651-K','auxiliar de aseo','450000'),
-('42957743-8','gerente','850000'),
-('18864263-2','bartender','700000'),
-('41152666-6','portero','450000'),
-('12786274-5','bodeguero','500000'),
-('84464435-3','administrador','7450000'),
-('19373328-K','cajero','450000'),
-('32947945-5','chef','650000');
+INSERT INTO trabajador(RUT,nombre,apellido,cargo,sueldo) VALUES
+('84683876-7','Amrane','JIMENEZ','mesero','500000'),
+('36967631-8','Anish','HERNANDEZ','lavaplatos','450000'),
+('41535864-4','Arián','RUIZ','auxiliar de aseo','450000'),
+('42472558-7','Ayun','DIAZ','gerente','850000'),
+('45631924-6','Azariel','MORENO','bartender','700000'),
+('37963643-8','Bagrat','MUÑOZ','portero','450000'),
+('84123398-0','Bencomo','ALVAREZ','bodeguero','500000'),
+('95548416-9','Bertino','ROMERO','administrador','7450000'),
+('95283823-7','Candi','GUTIERREZ','cajero','450000'),
+('87563488-7','Cesc','ALONSO','chef','650000');
 
 INSERT INTO egreso VALUES
 (1,CURRENT_DATE,'pago trabajador',500000),
@@ -83,18 +83,6 @@ INSERT INTO pago_trabajador VALUES
 (8),
 (9),
 (10);
-
-INSERT INTO cliente(RUT) VALUES
-('20123456-7'),
-('87423982-8'),
-('51986651-K'),
-('42957743-8'),
-('18864263-2'),
-('41152666-6'),
-('12786274-5'),
-('84464435-3'),
-('19373328-K'),
-('32947945-5');
 
 INSERT INTO pedido (id_pedido,RUT) VALUES
 (1,'20123456-7'),

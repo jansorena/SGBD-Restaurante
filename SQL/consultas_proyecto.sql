@@ -291,7 +291,6 @@ INSERT INTO pedido(id_pedido,RUT) VALUES
 INSERT INTO tiene VALUES
 (11,1235,1);
 
-
 /*
 CREATE OR REPLACE FUNCTION asignar_id_pedido()
 RETURNS TRIGGER AS $$
@@ -306,3 +305,21 @@ BEFORE INSERT ON pedido
 FOR EACH ROW 
 EXECUTE PROCEDURE asignar_id_pedido(); 
 */
+
+CREATE OR REPLACE FUNCTION rellenar_boleta()
+RETURNS TRIGGER AS $$
+DECLARE
+valorP INT := (SELECT valor_pedido FROM pedido AS p WHERE id_pedido = NEW.id_pedido);
+BEGIN
+	NEW.total := valorP;
+	NEW.valor_neto := valorP*0.81;
+	NEW.iva := valorP*0.19;
+	RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER rellenar_boleta
+BEFORE INSERT ON boleta
+FOR EACH ROW
+EXECUTE PROCEDURE rellenar_boleta();
+

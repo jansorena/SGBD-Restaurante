@@ -14,7 +14,7 @@ END
 $$ LANGUAGE plpgsql;
 
 -- Calcular precio del pedido en base a los productos
-CREATE OR REPLACE FUNCTION precio_pedido(numero_pedido INT)
+CREATE OR REPLACE FUNCTION calculo_precio_pedido(numero_pedido INT)
 RETURNS REAL AS $$
 DECLARE precio_pedido REAL;
 BEGIN
@@ -26,6 +26,19 @@ BEGIN
 	RETURN precio_pedido;
 END
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION precio_pedido()
+RETURNS TRIGGER AS $$
+BEGIN
+	NEW.valor_pedido := (calculo_precio_pedido(NEW.id_pedido));
+	RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER precio_pedido
+BEFORE INSERT OR UPDATE ON pedido
+FOR EACH ROW
+EXECUTE PROCEDURE precio_pedido();
 
 -- Ganancia total: Ingresos-Egresos
 CREATE OR REPLACE FUNCTION ganancia(fecha DATE)

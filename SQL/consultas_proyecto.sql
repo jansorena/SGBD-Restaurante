@@ -36,7 +36,7 @@ END
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER precio_pedido
-BEFORE INSERT OR UPDATE ON tiene
+AFTER INSERT OR UPDATE ON tiene
 FOR EACH ROW
 EXECUTE PROCEDURE precio_pedido();
 
@@ -251,7 +251,6 @@ $$ LANGUAGE plpgsql;
 
 --SELECT ingrediente_vencido();
 
-
 CREATE OR REPLACE FUNCTION check_stock()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -289,13 +288,13 @@ EXECUTE PROCEDURE actualizar_stock_por_pedido();
 INSERT INTO pedido(id_pedido,RUT) VALUES
 (11,'41152666-6');
 INSERT INTO tiene VALUES
-(11,1235,1); */
+(11,1235,2); */
 
 CREATE OR REPLACE FUNCTION check_stock_update()
 RETURNS TRIGGER AS $$
 BEGIN
 	IF((SELECT COUNT(*) FROM ingrediente AS i, producto AS p, compone AS c
-		WHERE i.id_ingrediente = c.id_ingrediente AND c.id_producto = p.id_producto AND c.cantidad_ingrediente*(OLD.cantidad_producto - NEW.cantidad_producto) > i.stock)) > 0
+		WHERE i.id_ingrediente = c.id_ingrediente AND c.id_producto = p.id_producto AND c.cantidad_ingrediente*(NEW.cantidad_producto - OLD.cantidad_producto) > i.stock)) > 0
 		THEN
 		RAISE EXCEPTION 'No se puede modificar el pedido por falta de stock';	
 	ELSE	
@@ -307,7 +306,7 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER check_stock_update
 BEFORE UPDATE ON tiene
 FOR EACH ROW
-EXECUTE PROCEDURE check_stock();
+EXECUTE PROCEDURE check_stock_update();
 
 CREATE OR REPLACE FUNCTION actualizar_stock_por_modificacion()
 RETURNS TRIGGER AS $$
@@ -323,7 +322,26 @@ AFTER UPDATE ON tiene
 FOR EACH ROW
 EXECUTE PROCEDURE actualizar_stock_por_modificacion();
 
-UPDATE tiene SET cantidad_producto = 2 WHERE id_pedido = 11 AND id_producto = 1235;
+--UPDATE tiene SET cantidad_producto = 2 WHERE id_pedido = 11 AND id_producto = 1235;
+
+CREATE OR REPLACE FUNCTION stock_no_null()
+RETURNS TRIGGER AS $$
+BEGIN
+	IF(NEW.stock) = NULL THEN
+		NEW.stock := 0;
+		RETURN NEW;
+	ELSE
+		RETURN NEW;
+	END IF;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER stock_no_null
+AFTER UPDATE ON ingrediente
+FOR EACH ROW
+EXECUTE PROCEDURE stock_no_null()
+
+
 
 /*
 CREATE OR REPLACE FUNCTION asignar_id_pedido()

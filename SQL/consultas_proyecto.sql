@@ -323,7 +323,7 @@ FOR EACH ROW
 EXECUTE PROCEDURE actualizar_stock_por_modificacion();
 
 --UPDATE tiene SET cantidad_producto = 2 WHERE id_pedido = 11 AND id_producto = 1235;
-
+/*
 CREATE OR REPLACE FUNCTION stock_no_null()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -340,7 +340,7 @@ CREATE TRIGGER stock_no_null
 AFTER UPDATE ON ingrediente
 FOR EACH ROW
 EXECUTE PROCEDURE stock_no_null()
-
+*/
 
 
 /*

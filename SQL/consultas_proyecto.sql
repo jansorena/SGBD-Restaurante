@@ -267,13 +267,12 @@ END
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER check_stock
-BEFORE INSERT OR UPDATE ON tiene
+BEFORE INSERT ON tiene
 FOR EACH ROW
 EXECUTE PROCEDURE check_stock();
 
 CREATE OR REPLACE FUNCTION actualizar_stock_por_pedido()
 RETURNS TRIGGER AS $$
-DECLARE
 BEGIN
 	UPDATE ingrediente AS i
 	SET stock = stock - (NEW.cantidad_producto*(SELECT cantidad_ingrediente FROM compone AS c WHERE c.id_producto = NEW.id_producto AND c.id_ingrediente = i.id_ingrediente));
@@ -286,10 +285,45 @@ AFTER INSERT ON tiene
 FOR EACH ROW
 EXECUTE PROCEDURE actualizar_stock_por_pedido();
 
+/*
 INSERT INTO pedido(id_pedido,RUT) VALUES
 (11,'41152666-6');
 INSERT INTO tiene VALUES
-(11,1235,1);
+(11,1235,1); */
+
+CREATE OR REPLACE FUNCTION check_stock_update()
+RETURNS TRIGGER AS $$
+BEGIN
+	IF((SELECT COUNT(*) FROM ingrediente AS i, producto AS p, compone AS c
+		WHERE i.id_ingrediente = c.id_ingrediente AND c.id_producto = p.id_producto AND c.cantidad_ingrediente*(OLD.cantidad_producto - NEW.cantidad_producto) > i.stock)) > 0
+		THEN
+		RAISE EXCEPTION 'No se puede modificar el pedido por falta de stock';	
+	ELSE	
+		RETURN NEW;
+	END IF;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER check_stock_update
+BEFORE UPDATE ON tiene
+FOR EACH ROW
+EXECUTE PROCEDURE check_stock();
+
+CREATE OR REPLACE FUNCTION actualizar_stock_por_modificacion()
+RETURNS TRIGGER AS $$
+BEGIN
+	UPDATE ingrediente AS i
+	SET stock = stock + ((OLD.cantidad_producto-NEW.cantidad_producto)*(SELECT cantidad_ingrediente FROM compone AS c WHERE c.id_producto = NEW.id_producto AND c.id_ingrediente = i.id_ingrediente));
+	RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER actualizar_stock_por_modificacion
+AFTER UPDATE ON tiene
+FOR EACH ROW
+EXECUTE PROCEDURE actualizar_stock_por_modificacion();
+
+UPDATE tiene SET cantidad_producto = 2 WHERE id_pedido = 11 AND id_producto = 1235;
 
 /*
 CREATE OR REPLACE FUNCTION asignar_id_pedido()

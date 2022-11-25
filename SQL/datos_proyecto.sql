@@ -190,18 +190,19 @@ INSERT INTO compone(id_producto,id_ingrediente,cantidad_ingrediente) VALUES
 (23441,24,0.33),
 (23442,24,1),
 (23443,24,1.5);
-/* persona */
-INSERT INTO cliente(RUT,nombre,apellido) VALUES
-('20123456-7','Pedro','Perez'),
-('87423982-8','Adel','GARCIA'),
-('51986651-K','Adonis','RODRIGUEZ'),
-('42957743-8','Ajaz','GONZALEZ'),
-('18864263-2','Akos','FERNANDEZ'),
-('41152666-6','Aldo','LOPEZ'),
-('12786274-5','Amets','MARTINEZ'),
-('84464435-3','Amaro','SANCHEZ'),
-('19373328-K','Aquiles','PEREZ'),
-('32947945-5','Algimantas','GOMEZ');
+
+/* mesa */
+INSERT INTO mesa(num_mesa) VALUES
+(1),
+(2),
+(3),
+(4),
+(5),
+(6),
+(7),
+(8),
+(9),
+(10);
 
 /* trabajadores */
 INSERT INTO trabajador(RUT,nombre,apellido,cargo,sueldo) VALUES
@@ -239,6 +240,19 @@ INSERT INTO pago_trabajador VALUES
 (8),
 (9),
 (10);
+
+/* persona */
+INSERT INTO cliente(RUT,nombre,apellido) VALUES
+('20123456-7','Pedro','Perez'),
+('87423982-8','Adel','GARCIA'),
+('51986651-K','Adonis','RODRIGUEZ'),
+('42957743-8','Ajaz','GONZALEZ'),
+('18864263-2','Akos','FERNANDEZ'),
+('41152666-6','Aldo','LOPEZ'),
+('12786274-5','Amets','MARTINEZ'),
+('84464435-3','Amaro','SANCHEZ'),
+('19373328-K','Aquiles','PEREZ'),
+('32947945-5','Algimantas','GOMEZ');
 
 INSERT INTO pedido (id_pedido,RUT) VALUES
 (1,'20123456-7'),
@@ -285,18 +299,6 @@ INSERT INTO tiene VALUES
 (10,1261,2),
 (10,1262,2),
 (10,1263,2);
-
-INSERT INTO mesa(num_mesa) VALUES
-(1),
-(2),
-(3),
-(4),
-(5),
-(6),
-(7),
-(8),
-(9),
-(10);
 
 INSERT INTO ocupa VALUES
 (1,1,'20123456-7'),

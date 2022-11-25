@@ -274,8 +274,8 @@ CREATE OR REPLACE FUNCTION actualizar_stock_por_pedido()
 RETURNS TRIGGER AS $$
 BEGIN
 	UPDATE ingrediente AS i
-	SET stock = stock - (NEW.cantidad_producto*(SELECT cantidad_ingrediente FROM compone AS c WHERE c.id_producto = NEW.id_producto AND c.id_ingrediente = i.id_ingrediente));
-	RETURN NEW;
+	SET stock = (stock - (NEW.cantidad_producto*(SELECT cantidad_ingrediente FROM compone AS c WHERE c.id_producto = NEW.id_producto AND c.id_ingrediente = i.id_ingrediente)));
+	RETURN NULL;
 END
 $$ LANGUAGE plpgsql;
 

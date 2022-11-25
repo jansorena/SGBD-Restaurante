@@ -382,6 +382,7 @@ BEGIN
 		RAISE EXCEPTION 'La mesa esta ocupada';
 	ELSE
 		RETURN NEW;
+	END IF;
 END
 $$ LANGUAGE plpgsql;
 

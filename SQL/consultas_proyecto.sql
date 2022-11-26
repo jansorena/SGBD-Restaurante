@@ -68,7 +68,7 @@ RETURNS REAL AS $$
 DECLARE ganancia REAL; ingresos REAL; egresos REAL;
 BEGIN
 	ingresos := (
-		SELECT sum(precio_pedido(pe.id_pedido))
+		SELECT sum(calculo_precio_pedido(pe.id_pedido))
 		FROM pedido AS pe
 		WHERE pe.fecha_pedido = fecha
 	);

@@ -127,21 +127,6 @@ SET stock = 0
 WHERE id_ingrediente = 3;
 */
 
-/*CREATE OR REPLACE FUNCTION actualiza_actualizado()
-RETURNS TRIGGER AS $$
-BEGIN
-	IF(SELECT cantidad_actualiza FROM actualiza AS a WHERE a.id_egreso = NEW.id_egreso AND a.cantidad_actualiza >= 1) >= 1   THEN
-		NEW.estado_actualiza := 'actualizado';
-	END IF;
-	RETURN NEW;
-END
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER actualiza_actualizado
-AFTER UPDATE ON actualiza
-FOR EACH ROW 
-EXECUTE PROCEDURE actualiza_actualizado();*/
-
 CREATE OR REPLACE FUNCTION actualizar_stock()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -347,40 +332,6 @@ FOR EACH ROW
 EXECUTE PROCEDURE actualizar_stock_por_modificacion();
 
 --UPDATE tiene SET cantidad_producto = 4 WHERE id_pedido = 1 AND id_producto = 23422;
-/*
-CREATE OR REPLACE FUNCTION stock_no_null()
-RETURNS TRIGGER AS $$
-BEGIN
-	IF(NEW.stock) = NULL THEN
-		NEW.stock := 0;
-		RETURN NEW;
-	ELSE
-		RETURN NEW;
-	END IF;
-END
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER stock_no_null
-AFTER UPDATE ON ingrediente
-FOR EACH ROW
-EXECUTE PROCEDURE stock_no_null()
-*/
-
-
-/*
-CREATE OR REPLACE FUNCTION asignar_id_pedido()
-RETURNS TRIGGER AS $$
-BEGIN	
-	NEW.id_pedido := (SELECT MAX(id_pedido) FROM pedido) + 1;
-	RETURN NEW;
-END
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER asignar_id_pedido
-BEFORE INSERT ON pedido
-FOR EACH ROW 
-EXECUTE PROCEDURE asignar_id_pedido(); 
-*/
 
 CREATE OR REPLACE FUNCTION rellenar_boleta()
 RETURNS TRIGGER AS $$

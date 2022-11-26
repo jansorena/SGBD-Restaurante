@@ -6,7 +6,7 @@ DECLARE precio_producto REAL;
 BEGIN
 	precio_producto := (
 		SELECT sum(c.cantidad_ingrediente*i.valor_unitario*(1+(p.porcentaje_ganancia/100)))
-		FROM producto AS p, compone AS c, ingrediente AS i
+		FROM proyecto.producto AS p, proyecto.compone AS c, proyecto.ingrediente AS i
 		WHERE p.id_producto = id_calcular AND p.id_producto = c.id_producto AND c.id_ingrediente = i.id_ingrediente
 	);
 	RETURN precio_producto;
@@ -16,7 +16,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION precio_producto()
 RETURNS VOID AS $$
 BEGIN
-	UPDATE producto AS p SET valor_producto = precio(p.id_producto);
+	UPDATE proyecto.producto AS p SET valor_producto = proyecto.precio(p.id_producto);
 END
 $$ LANGUAGE plpgsql;
 
@@ -31,9 +31,9 @@ END
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER nuevo_precio_producto
-AFTER UPDATE ON ingrediente
+AFTER UPDATE ON proyecto.ingrediente
 FOR EACH ROW
-EXECUTE PROCEDURE nuevo_precio_producto();
+EXECUTE PROCEDURE proyecto.nuevo_precio_producto();
 
 -- Calcular precio del pedido en base a los productos
 CREATE OR REPLACE FUNCTION calculo_precio_pedido(numero_pedido INT)

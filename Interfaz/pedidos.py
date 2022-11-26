@@ -181,7 +181,7 @@ class pedidos(customtkinter.CTkToplevel):
         self.tree_mesas.grid(row=19,column=1,ipady=15,ipadx=100)
 
         self.tree_mesas.heading('Mesa', text='Mesa')
-    #ok
+    
     def generar_pedido(self):
         # Consultar usuarios en la base de datos
         sql = """INSERT INTO proyecto.pedido(id_pedido,RUT) VALUES(%s,%s)"""
@@ -217,7 +217,7 @@ class pedidos(customtkinter.CTkToplevel):
         finally:
             if conn is not None:
                 conn.close()
-    #ok
+    
     def mostrar_pedidos_f(self):
         commands = (
             """
@@ -262,7 +262,7 @@ class pedidos(customtkinter.CTkToplevel):
         finally:
             if conn is not None:
                 conn.close()
-    #ok
+    
     def agregar_producto(self):
         # Consultar usuarios en la base de datos
         sql = """INSERT INTO proyecto.tiene(id_pedido,id_producto,cantidad_producto) VALUES(%s,%s,%s)"""
@@ -319,7 +319,7 @@ class pedidos(customtkinter.CTkToplevel):
         finally:
             if conn is not None:
                 conn.close()
-    #ok
+    
     def quitar_producto(self):
         # Consultar usuarios en la base de datos
         sql = """

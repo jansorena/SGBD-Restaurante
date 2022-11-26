@@ -203,7 +203,6 @@ class trabajadores(customtkinter.CTkToplevel):
                 conn.close()
 
     def rellenar_entrada(self,event):
-        
         curItem = self.tree.focus()
         entrada = self.tree.item(curItem,'values')
 

@@ -216,6 +216,7 @@ class productos(customtkinter.CTkToplevel):
         SET nombre = %s, porcentaje_ganancia = %s, tmp_preparacion = %s
         WHERE p.id_producto = %s;
         """
+        funcion = """SELECT proyecto.precio_producto();"""
         conn = None
         try:
             # Leer los parametros de configuracion
@@ -236,7 +237,8 @@ class productos(customtkinter.CTkToplevel):
 
             if(id_producto_agregar != ""):
                 cur.execute(sql,(nombre_agregar,porcentaje_ganancia_agregar,tmp_preparacion_agregar,id_producto_agregar))
-
+                cur.execute(funcion)
+            
             # Cerrar la comunicacion con la base de datos
             cur.close()
 

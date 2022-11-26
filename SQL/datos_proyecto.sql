@@ -254,6 +254,14 @@ INSERT INTO cliente(RUT,nombre,apellido) VALUES
 ('19373328-K','Aquiles','PEREZ'),
 ('32947945-5','Algimantas','GOMEZ');
 
+/* proveedor */
+INSERT INTO proveedor VALUES
+(1,'Juanito Pascal','Soprole','+56912344321'),
+(2,'Jimmy Neutron','Carnes Angus','+56956788765'),
+(3,'Jhonny Bravo','La Vega','+56978900987'),
+(4,'Paquito del Barrio','Coca-Cola','+56910293847');
+(5,'Paquita la del Barrio','Cencosud','+56909876543');
+
 INSERT INTO pedido (id_pedido,RUT) VALUES
 (1,'20123456-7'),
 (2,'87423982-8'),
@@ -309,6 +317,15 @@ INSERT INTO ocupa VALUES
 (10,10,'32947945-5');
 
 INSERT INTO boleta (id_boleta,id_pedido) VALUES
-(1,1);
+(1,1),
+(2,2),
+(3,3),
+(4,4),
+(5,5),
+(6,6),
+(7,7),
+(8,8),
+(9,9),
+(10,10);
 
 --update ingrediente set stock = 20 WHERE nombre = 'ketchup';

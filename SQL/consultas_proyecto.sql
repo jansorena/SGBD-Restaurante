@@ -13,6 +13,34 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION precio_producto()
+RETURNS TRIGGER AS $$
+BEGIN
+	NEW.valor_producto := precio(NEW.id);
+	RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER precio_producto
+BEFORE INSERT ON producto
+FOR EACH ROW
+EXECUTE PROCEDURE precio_producto();
+
+CREATE OR REPLACE FUNCTION nuevo_precio_producto()
+RETURNS TRIGGER AS $$
+BEGIN
+	IF(OLD.valor_unitario != NEW.valor_unitario) THEN
+		UPDATE producto AS p SET valor_producto = precio(p.id_producto) WHERE p.id_producto = (SELECT id_producto FROM producto AS p, compone AS c WHERE p.id_producto = c.id_producto AND c.id_ingrediente = NEW.id_ingrediente);
+	END IF;
+	RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER nuevo_precio_producto
+AFTER UPDATE ON ingrediente
+FOR EACH ROW
+EXECUTE PROCEDURE nuevo_precio_producto();
+
 -- Calcular precio del pedido en base a los productos
 CREATE OR REPLACE FUNCTION calculo_precio_pedido(numero_pedido INT)
 RETURNS REAL AS $$
@@ -270,7 +298,6 @@ BEFORE INSERT ON tiene
 FOR EACH ROW
 EXECUTE PROCEDURE check_stock();
 
---no se restrigen las cantidades nulas
 CREATE OR REPLACE FUNCTION actualizar_stock_por_pedido()
 RETURNS TRIGGER AS $$
 BEGIN

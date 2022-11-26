@@ -267,8 +267,8 @@ INSERT INTO pedido (id_pedido,RUT) VALUES
 (10,'32947945-5');
 
 INSERT INTO tiene VALUES
-(1,1234,2),
 (1,1231,2),
+(1,1234,2),
 (1,23422,1),
 (1,1242,2),
 (2,1232,2),
@@ -307,3 +307,5 @@ INSERT INTO ocupa VALUES
 (5,5,'18864263-2'),
 (8,8,'84464435-3'),
 (10,10,'32947945-5');
+
+--update ingrediente set stock = 20 WHERE nombre = 'ketchup';

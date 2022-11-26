@@ -47,7 +47,7 @@ fecha_venta DATE DEFAULT CURRENT_DATE);
 CREATE TABLE ingrediente(
 id_ingrediente INT PRIMARY KEY,
 nombre VARCHAR(100),
-stock REAL CHECK(stock >= 0) DEFAULT 0,
+stock REAL NOT NULL CHECK(stock >= 0) DEFAULT 0,
 u_m VARCHAR(100) CHECK(u_m IN ('unidad','kg','L')),
 fecha_exp DATE,
 valor_unitario INT);
@@ -88,7 +88,7 @@ PRIMARY KEY (id_pedido,id_producto));
 CREATE TABLE compone(
 id_producto INT REFERENCES producto(id_producto) ON DELETE RESTRICT ON UPDATE CASCADE,
 id_ingrediente INT REFERENCES ingrediente(id_ingrediente) ON DELETE RESTRICT ON UPDATE CASCADE,
-cantidad_ingrediente REAL,
+cantidad_ingrediente REAL CHECK(cantidad_ingrediente >= 0),
 PRIMARY KEY (id_producto,id_ingrediente));
 
 CREATE TABLE actualiza(

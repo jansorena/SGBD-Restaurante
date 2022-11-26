@@ -270,12 +270,14 @@ BEFORE INSERT ON tiene
 FOR EACH ROW
 EXECUTE PROCEDURE check_stock();
 
+--no se restrigen las cantidades nulas
 CREATE OR REPLACE FUNCTION actualizar_stock_por_pedido()
 RETURNS TRIGGER AS $$
 BEGIN
 	UPDATE ingrediente AS i
-	SET stock = (stock - (NEW.cantidad_producto*(SELECT cantidad_ingrediente FROM compone AS c WHERE c.id_producto = NEW.id_producto AND c.id_ingrediente = i.id_ingrediente)));
-	RETURN NULL;
+	SET stock = stock - (NEW.cantidad_producto*(SELECT cantidad_ingrediente FROM compone AS c WHERE c.id_ingrediente = i.id_ingrediente AND c.id_producto = NEW.id_producto))
+	WHERE i.id_ingrediente = (SELECT id_ingrediente FROM compone AS c WHERE c.id_ingrediente = i.id_ingrediente AND c.id_producto = NEW.id_producto);
+	RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
 
@@ -312,7 +314,8 @@ CREATE OR REPLACE FUNCTION actualizar_stock_por_modificacion()
 RETURNS TRIGGER AS $$
 BEGIN
 	UPDATE ingrediente AS i
-	SET stock = stock + ((OLD.cantidad_producto-NEW.cantidad_producto)*(SELECT cantidad_ingrediente FROM compone AS c WHERE c.id_producto = NEW.id_producto AND c.id_ingrediente = i.id_ingrediente));
+	SET stock = stock + ((OLD.cantidad_producto-NEW.cantidad_producto)*(SELECT cantidad_ingrediente FROM compone AS c WHERE c.id_producto = NEW.id_producto AND c.id_ingrediente = i.id_ingrediente))
+	WHERE i.id_ingrediente = (SELECT id_ingrediente FROM compone AS c WHERE c.id_producto = NEW.id_producto AND c.id_ingrediente = i.id_ingrediente);
 	RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
@@ -322,7 +325,7 @@ AFTER UPDATE ON tiene
 FOR EACH ROW
 EXECUTE PROCEDURE actualizar_stock_por_modificacion();
 
---UPDATE tiene SET cantidad_producto = 2 WHERE id_pedido = 11 AND id_producto = 1235;
+--UPDATE tiene SET cantidad_producto = 4 WHERE id_pedido = 1 AND id_producto = 23422;
 /*
 CREATE OR REPLACE FUNCTION stock_no_null()
 RETURNS TRIGGER AS $$

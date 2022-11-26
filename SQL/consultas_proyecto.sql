@@ -1,13 +1,13 @@
 
 -- Calcular el precio de un producto en base a los ingredientes
-CREATE OR REPLACE FUNCTION precio(nombre_producto TEXT)
+CREATE OR REPLACE FUNCTION precio(id_calcular INT)
 RETURNS REAL AS $$
 DECLARE precio_producto REAL;
 BEGIN
 	precio_producto := (
 		SELECT sum(i.valor_unitario*c.cantidad_ingrediente*(1+p.porcentaje_ganancia/100))
 		FROM producto as p, compone as c, ingrediente as i
-		WHERE p.nombre = nombre_producto AND p.id_producto = c.id_producto AND c.id_ingrediente = i.id_ingrediente
+		WHERE p.id_producto = id_calcular AND p.id_producto = c.id_producto AND c.id_ingrediente = i.id_ingrediente
 	);
 	RETURN precio_producto;
 END

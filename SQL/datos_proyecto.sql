@@ -274,6 +274,18 @@ INSERT INTO pedido (id_pedido,RUT) VALUES
 (9,'19373328-K'),
 (10,'32947945-5');
 
+INSERT INTO en_local (id_pedido) VALUES
+(1),
+(2),
+(3),
+(4),
+(5),
+(6),
+(7),
+(8),
+(9),
+(10);
+
 INSERT INTO tiene VALUES
 (1,1231,2),
 (1,1234,2),

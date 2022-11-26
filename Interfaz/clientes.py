@@ -177,8 +177,7 @@ class clientes(customtkinter.CTkToplevel):
         commands = (
             """
             SELECT *
-            FROM proyecto.persona as p, proyecto.cliente as c
-            WHERE p.rut = c.rut;
+            FROM proyecto.cliente as c;
             """
         )
         conn = None

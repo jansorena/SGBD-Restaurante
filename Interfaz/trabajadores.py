@@ -65,7 +65,6 @@ class trabajadores(customtkinter.CTkToplevel):
 
     def agregar_trabajadores(self):
         # Consultar usuarios en la base de datos
-        sql = """INSERT INTO proyecto.persona(rut,nombre,apellido) VALUES(%s,%s,%s)"""
         sql2 = """INSERT INTO proyecto.trabajador(rut,cargo,sueldo) VALUES(%s,%s,%s)"""
         conn = None
 
@@ -87,7 +86,6 @@ class trabajadores(customtkinter.CTkToplevel):
             sueldo_agregar = self.sueldo.get()
 
             if(rut_agregar != ""):
-                cur.execute(sql,(rut_agregar,nombre_agregar,apellido_agregar))
                 cur.execute(sql2,(rut_agregar,cargo_agregar,sueldo_agregar))
 
             # Cerrar la comunicacion con la base de datos
@@ -96,6 +94,8 @@ class trabajadores(customtkinter.CTkToplevel):
             # Commit los cambios
             conn.commit()
 
+            self.mostrar_trabajadores()
+
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
         finally:
@@ -103,19 +103,10 @@ class trabajadores(customtkinter.CTkToplevel):
                 conn.close()
 
     def editar_trabajadores(self):
-
-        sql_persona = """
-        UPDATE proyecto.persona as pe
-        SET nombre = %s, apellido = %s
-        FROM proyecto.trabajador as t
-        WHERE t.rut = %s AND pe.rut = t.rut;
-        """
-
         sql_trabajador ="""
-        UPDATE proyecto.trabajador as pe
-        SET cargo = %s, sueldo = %s
-        FROM proyecto.trabajador as t
-        WHERE t.rut = %s AND pe.rut = t.rut;
+        UPDATE proyecto.trabajador as t
+        SET nombre = %s, apellido =%s, cargo = %s, sueldo = %s
+        WHERE t.RUT = %s;
         """
         conn = None
         try:
@@ -136,10 +127,8 @@ class trabajadores(customtkinter.CTkToplevel):
             sueldo_agregar = self.sueldo.get()
 
             if rut_agregar != "":
-                cur.execute(sql_persona,(nombre_agregar,apellido_agregar,rut_agregar))
-
-            if rut_agregar != "":
-                cur.execute(sql_trabajador,(cargo_agregar,sueldo_agregar,rut_agregar))
+                cur.execute(sql_trabajador,(nombre_agregar,apellido_agregar,
+                cargo_agregar,sueldo_agregar,rut_agregar))
 
             self.rut.delete(0,END)
             self.nombre.delete(0,END)
@@ -152,6 +141,8 @@ class trabajadores(customtkinter.CTkToplevel):
 
             # Commit los cambios
             conn.commit()
+
+            self.mostrar_trabajadores()
 
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
@@ -169,9 +160,9 @@ class trabajadores(customtkinter.CTkToplevel):
          # Consultar usuarios en la base de datos
         commands = (
             """
-            SELECT p.rut, p.nombre, p.apellido, t.cargo, t.sueldo
-            FROM proyecto.persona as p, proyecto.trabajador as t
-            WHERE p.rut = t.rut;
+            SELECT *
+            FROM proyecto.trabajador as t
+            ORDER BY RUT;
             """
         )
         conn = None

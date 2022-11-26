@@ -120,9 +120,9 @@ INSERT INTO compone(id_producto,id_ingrediente,cantidad_ingrediente) VALUES
 (1251,10,0.25),
 (1251,11,0.15),
 (1251,13,0.3),
-(1251,14,0.75),
-(1251,15,0.75),
-(1251,16,0.75),
+(1251,14,0.075),
+(1251,15,0.075),
+(1251,16,0.075),
 (1251,17,0.15),
 (1251,18,0.15),
 --Pichanga caliente mediana
@@ -134,9 +134,9 @@ INSERT INTO compone(id_producto,id_ingrediente,cantidad_ingrediente) VALUES
 (1252,10,0.5),
 (1252,11,0.25),
 (1252,13,0.5),
-(1252,14,1.5),
-(1252,15,1.5),
-(1252,16,1.5),
+(1252,14,0.15),
+(1252,15,0.15),
+(1252,16,0.15),
 (1252,17,0.25),
 (1252,18,0.25),
 --Pichanga caliente familiar
@@ -148,9 +148,9 @@ INSERT INTO compone(id_producto,id_ingrediente,cantidad_ingrediente) VALUES
 (1253,10,0.75),
 (1253,11,0.4),
 (1253,13,0.65),
-(1253,14,3),
-(1253,15,2),
-(1253,16,3),
+(1253,14,0.3),
+(1253,15,0.2),
+(1253,16,0.3),
 (1253,17,0.4),
 (1253,18,0.4),
 
@@ -259,7 +259,7 @@ INSERT INTO proveedor VALUES
 (1,'Juanito Pascal','Soprole','+56912344321'),
 (2,'Jimmy Neutron','Carnes Angus','+56956788765'),
 (3,'Jhonny Bravo','La Vega','+56978900987'),
-(4,'Paquito del Barrio','Coca-Cola','+56910293847');
+(4,'Paquito del Barrio','Coca-Cola','+56910293847'),
 (5,'Paquita la del Barrio','Cencosud','+56909876543');
 
 INSERT INTO pedido (id_pedido,RUT) VALUES

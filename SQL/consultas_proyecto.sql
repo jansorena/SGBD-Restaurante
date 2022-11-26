@@ -5,8 +5,8 @@ RETURNS REAL AS $$
 DECLARE precio_producto REAL;
 BEGIN
 	precio_producto := (
-		SELECT sum(i.valor_unitario*c.cantidad_ingrediente*(1+p.porcentaje_ganancia/100))
-		FROM producto as p, compone as c, ingrediente as i
+		SELECT sum(c.cantidad_ingrediente*i.valor_unitario*(1+(p.porcentaje_ganancia/100)))
+		FROM producto AS p, compone AS c, ingrediente AS i
 		WHERE p.id_producto = id_calcular AND p.id_producto = c.id_producto AND c.id_ingrediente = i.id_ingrediente
 	);
 	RETURN precio_producto;
@@ -14,23 +14,17 @@ END
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION precio_producto()
-RETURNS TRIGGER AS $$
+RETURNS VOID AS $$
 BEGIN
-	NEW.valor_producto := precio(NEW.id);
-	RETURN NEW;
+	UPDATE producto AS p SET valor_producto = precio(p.id_producto);
 END
 $$ LANGUAGE plpgsql;
-
-CREATE TRIGGER precio_producto
-BEFORE INSERT ON producto
-FOR EACH ROW
-EXECUTE PROCEDURE precio_producto();
 
 CREATE OR REPLACE FUNCTION nuevo_precio_producto()
 RETURNS TRIGGER AS $$
 BEGIN
 	IF(OLD.valor_unitario != NEW.valor_unitario) THEN
-		UPDATE producto AS p SET valor_producto = precio(p.id_producto) WHERE p.id_producto = (SELECT id_producto FROM producto AS p, compone AS c WHERE p.id_producto = c.id_producto AND c.id_ingrediente = NEW.id_ingrediente);
+		UPDATE producto AS p SET valor_producto = precio(p.id_producto) WHERE p.id_producto = (SELECT id_producto FROM compone AS c WHERE p.id_producto = c.id_producto AND c.id_ingrediente = NEW.id_ingrediente);
 	END IF;
 	RETURN NEW;
 END
@@ -47,8 +41,8 @@ RETURNS REAL AS $$
 DECLARE precio_pedido REAL;
 BEGIN
 	precio_pedido := (
-		SELECT sum(t.cantidad_producto*precio(pr.nombre))
-		FROM pedido as pe, tiene as t, producto as pr
+		SELECT sum(t.cantidad_producto*precio(pr.id_producto))
+		FROM pedido AS pe, tiene AS t, producto AS pr
 		WHERE pe.id_pedido = numero_pedido AND pe.id_pedido = t.id_pedido AND t.id_producto = pr.id_producto
 		);
 	RETURN precio_pedido;
@@ -75,13 +69,13 @@ DECLARE ganancia REAL; ingresos REAL; egresos REAL;
 BEGIN
 	ingresos := (
 		SELECT sum(precio_pedido(pe.id_pedido))
-		FROM pedido as pe
+		FROM pedido AS pe
 		WHERE pe.fecha_pedido = fecha
 	);
 
 	egresos := (
 		SELECT sum(e.total)
-		FROM egreso as e
+		FROM egreso AS e
 		WHERE e.fecha_egreso = fecha
 	);
 

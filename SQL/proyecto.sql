@@ -33,7 +33,7 @@ CREATE TABLE producto(
 id_producto INT PRIMARY KEY,
 nombre VARCHAR(100),
 valor_producto INT,
-porcentaje_ganancia INT DEFAULT 20,
+porcentaje_ganancia REAL DEFAULT 35,
 tmp_preparacion INT);
 
 CREATE TABLE boleta(

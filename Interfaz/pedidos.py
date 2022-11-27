@@ -380,7 +380,38 @@ class pedidos(customtkinter.CTkToplevel):
                 conn.close()
 
     def agregar_pedido_delivery_f(self):
-        pass
+        # Consultar usuarios en la base de datos
+        sql = """INSERT INTO proyecto.fuera_local(id_pedido) VALUES(%s,%s)"""
+
+        conn = None
+
+        try:
+            # Leer los parametros de configuracion
+            params = config()
+
+            # Conectar a las base de datos
+            conn = psycopg2.connect(**params)
+
+            # Crear cursor
+            cur = conn.cursor()
+
+            # Ejecutar los comandos
+            id_pedido_agregar = self.id_pedido.get()
+
+            if(id_pedido_agregar != ""):
+                cur.execute(sql,(id_pedido_agregar,))
+
+            # Cerrar la comunicacion con la base de datos
+            cur.close()
+
+            # Commit los cambios
+            conn.commit()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
 
     def mostrar_mesas_f(self):
         pass

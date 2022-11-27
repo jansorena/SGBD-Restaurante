@@ -2,7 +2,7 @@ import customtkinter
 from PIL import Image, ImageTk
 import os
 import tkinter
-import clientes, ingredientes, trabajadores, productos, pedidos
+import clientes, ingredientes, trabajadores, productos, pedidos, finanzas
 
 PATH = os.path.dirname(os.path.realpath(__file__))
 customtkinter.set_appearance_mode("light")
@@ -70,6 +70,9 @@ class MainMenu(customtkinter.CTk):
 
     def window_pedidos(self):
         new_window_pedidos = pedidos.pedidos(self)
+
+    def window_finanzas(self):
+        new_window_finanzas = finanzas.finanzas(self)
 
 if __name__ == "__main__":
     app = MainMenu()

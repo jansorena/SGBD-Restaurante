@@ -23,6 +23,7 @@ class pedidos(customtkinter.CTkToplevel):
         self.frame1.rowconfigure(11,minsize=20)
         self.frame1.rowconfigure(13,minsize=20)
         self.frame1.rowconfigure(15,minsize=20)
+        self.frame1.rowconfigure(17,minsize=20)
 
         self.rut = customtkinter.CTkEntry(self.frame1, width=300)
         self.rut.grid(row=0,column=1)
@@ -76,14 +77,18 @@ class pedidos(customtkinter.CTkToplevel):
         command=self.agregar_producto)
         self.agregar_productos_btn.grid(row=12,column=1, ipadx = 25)
 
+        self.editar_productos_btn = customtkinter.CTkButton(self.frame1, text="Editar producto", 
+        command=self.editar_producto)
+        self.editar_productos_btn.grid(row=14,column=1, ipadx = 25)
+
         self.quitar_producto_btn = customtkinter.CTkButton(self.frame1, text="Quitar producto", 
         command=self.quitar_producto)
-        self.quitar_producto_btn.grid(row=14,column=1, ipadx = 25)
+        self.quitar_producto_btn.grid(row=16,column=1, ipadx = 25)
 
         # Treeview productos en pedido
         columnas = ('ID Producto','Nombre','Cantidad','Valor')
         self.tree = ttk.Treeview(self.frame1,columns=columnas,show='headings')
-        self.tree.grid(row=16,column=0,columnspan=2,ipady=100)
+        self.tree.grid(row=18,column=0,columnspan=2,ipady=100)
         self.tree.heading('ID Producto', text='ID Producto')
         self.tree.column('ID Producto',width=150)
         self.tree.heading('Nombre', text='Nombre')
@@ -95,13 +100,13 @@ class pedidos(customtkinter.CTkToplevel):
 
         scrollbar = ttk.Scrollbar(self.frame1, orient=tk.VERTICAL, command=self.tree.yview)
         self.tree.configure(yscroll=scrollbar.set)
-        scrollbar.grid(row=16, column=2,ipady=191)
+        scrollbar.grid(row=18, column=2,ipady=191)
 
         self.tree.bind('<ButtonRelease-1>', self.rellenar_tree)
 
         # total
         self.total = customtkinter.CTkLabel(self.frame1,text="Total: ")
-        self.total.grid(row=17,column=1,sticky="e")
+        self.total.grid(row=19,column=1,sticky="e")
         # pendiente
 
         #################################### FRAME 2 ########################################
@@ -307,6 +312,8 @@ class pedidos(customtkinter.CTkToplevel):
                 self.tree.delete(item)
 
             for pedido in pedidos:
+                pedido = list(pedido)
+                pedido[3] = pedido[2]*pedido[3]
                 self.tree.insert('', END, values=pedido)
 
 
@@ -372,6 +379,8 @@ class pedidos(customtkinter.CTkToplevel):
                 self.tree.delete(item)
 
             for pedido in pedidos:
+                pedido = list(pedido)
+                pedido[3] = pedido[2]*pedido[3]
                 self.tree.insert('', END, values=pedido)
             # Cerrar la comunicacion con la base de datos
             cur.close()
@@ -628,7 +637,7 @@ class pedidos(customtkinter.CTkToplevel):
 
             text = 'Total: ' + x
             self.total = customtkinter.CTkLabel(self.frame1,text=text)
-            self.total.grid(row=17,column=1,sticky="e")
+            self.total.grid(row=19,column=1,sticky="e")
 
             # Cerrar la comunicacion con la base de datos
             cur.close()
@@ -688,5 +697,67 @@ class pedidos(customtkinter.CTkToplevel):
             if conn is not None:
                 conn.close()
 
-    def mostrar_productos_2(self):
-        pass
+    def editar_producto(self):
+         # Consultar usuarios en la base de datos
+        sql = """
+        UPDATE proyecto.tiene
+        SET cantidad_producto = %s
+        WHERE id_pedido = %s AND id_producto = %s;
+        """
+
+        sql2 = (
+            """
+            SELECT t.id_producto, pr.nombre, t.cantidad_producto, pr.valor_producto
+            FROM proyecto.pedido as p, proyecto.tiene as t, proyecto.producto as pr
+            WHERE p.id_pedido = %s AND p.id_pedido = t.id_pedido AND t.id_producto = pr.id_producto;
+            """
+        )
+
+        conn = None
+
+        try:
+            # Leer los parametros de configuracion
+            params = config()
+
+            # Conectar a las base de datos
+            conn = psycopg2.connect(**params)
+
+            # Crear cursor
+            cur = conn.cursor()
+
+            # Ejecutar los comandos
+            id_pedido_editar = self.id_pedido.get()
+            id_producto_editar = self.id_producto.get()
+            cantidad_editar = self.cantidad.get()
+
+            if(id_pedido_editar != "" and id_producto_editar != ""):
+                cur.execute(sql,(cantidad_editar,id_pedido_editar,id_producto_editar))
+
+            cur.execute(sql2,(id_pedido_editar,))
+            pedidos = cur.fetchall()
+            print(pedidos)
+            try:
+                self.tree.selection_remove(self.tree.selection()[0])
+            except:
+                pass
+
+            for item in self.tree.get_children():
+                self.tree.delete(item)
+
+            for pedido in pedidos:
+                pedido = list(pedido)
+                pedido[3] = pedido[2]*pedido[3]
+                self.tree.insert('', END, values=pedido)
+            # Cerrar la comunicacion con la base de datos
+            cur.close()
+
+            # Commit los cambios
+            conn.commit()
+
+            self.mostrar_total_pedido()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()

@@ -263,8 +263,8 @@ BEGIN
 	IF((SELECT COUNT(*) FROM proyecto.ingrediente AS i, proyecto.producto AS p, proyecto.compone AS c
 		WHERE i.id_ingrediente = c.id_ingrediente AND c.id_producto = p.id_producto AND c.cantidad_ingrediente*NEW.cantidad_producto > i.stock)) > 0
 		THEN
-		DELETE FROM proyecto.en_local WHERE id_pedido = NEW.id_pedido;		
-		DELETE FROM proyecto.pedido WHERE id_pedido = NEW.id_pedido;
+		--DELETE FROM proyecto.en_local WHERE id_pedido = NEW.id_pedido;		
+		--DELETE FROM proyecto.pedido WHERE id_pedido = NEW.id_pedido;
 		RAISE EXCEPTION 'No se puede realizar el pedido por falta de stock';	
 	ELSE	
 		RETURN NEW;
@@ -276,7 +276,7 @@ CREATE TRIGGER check_stock
 BEFORE INSERT ON proyecto.tiene
 FOR EACH ROW
 EXECUTE PROCEDURE proyecto.check_stock();
-
+/*
 CREATE OR REPLACE FUNCTION actualizar_stock_por_pedido()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -291,7 +291,7 @@ CREATE TRIGGER actualizar_stock_por_pedido
 AFTER INSERT ON proyecto.tiene
 FOR EACH ROW
 EXECUTE PROCEDURE proyecto.actualizar_stock_por_pedido();
-
+*/
 /*
 INSERT INTO pedido(id_pedido,RUT) VALUES
 (11,'41152666-6');

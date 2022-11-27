@@ -173,6 +173,11 @@ class productos(customtkinter.CTkToplevel):
         for item in self.tree.get_children():
             self.tree.delete(item)
         
+        self.id_ingrediente.delete(0,END)
+        self.cantidad_ingrediente.delete(0,END)
+
+        for item in self.tree_ingredientes.get_children():
+            self.tree_ingredientes.delete(item)
         # Consultar usuarios en la base de datos
         commands = (
             """
@@ -192,8 +197,11 @@ class productos(customtkinter.CTkToplevel):
             # Crear cursor
             cur = conn.cursor()
 
+            cur.callproc('proyecto.precio_producto',())
             # Ejecutar los comandos
             cur.execute(commands)
+            
+
             productos = cur.fetchall()
 
             for producto in productos:
@@ -204,6 +212,8 @@ class productos(customtkinter.CTkToplevel):
 
             # Commit los cambios
             conn.commit()
+
+            
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
         finally:

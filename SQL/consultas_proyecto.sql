@@ -286,7 +286,7 @@ AFTER INSERT ON proyecto.tiene
 FOR EACH ROW
 EXECUTE PROCEDURE proyecto.actualizar_stock_por_pedido();
 
-/*
+
 INSERT INTO pedido(id_pedido,RUT) VALUES
 (11,'41152666-6');
 INSERT INTO tiene VALUES

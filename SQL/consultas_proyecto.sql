@@ -107,10 +107,10 @@ BEGIN
 	WHERE i.id_ingrediente = NEW.id_ingrediente AND i.stock <= 10) <= 10 THEN
         IF (cont = 0) THEN
             INSERT INTO proyecto.egreso(id_egreso,fecha_egreso,descripcion) VALUES 
-            ((SELECT MAX(id_egreso) FROM egreso)+1,CURRENT_DATE,CONCAT('Compra ',auxNombre));
+            ((SELECT MAX(id_egreso) FROM proyecto.egreso)+1,CURRENT_DATE,CONCAT('Compra ',auxNombre));
             INSERT INTO proyecto.compra VALUES ((SELECT MAX(id_egreso) FROM proyecto.egreso));
             INSERT INTO proyecto.actualiza (id_ingrediente,id_egreso) VALUES (NEW.id_ingrediente,(SELECT MAX(id_egreso) FROM proyecto.egreso));
-		ELSIF(cont > 0 AND ((SELECT e.total FROM egreso AS e, actualiza AS a WHERE a.id_ingrediente = NEW.id_ingrediente AND e.id_egreso = a.id_egreso)) > 0) THEN
+		ELSIF(cont > 0 AND ((SELECT e.total FROM proyecto.egreso AS e, proyecto.actualiza AS a WHERE a.id_ingrediente = NEW.id_ingrediente AND e.id_egreso = a.id_egreso)) > 0) THEN
 			INSERT INTO proyecto.egreso(id_egreso,fecha_egreso,descripcion) VALUES 
             ((SELECT MAX(id_egreso) FROM egreso)+1,CURRENT_DATE,CONCAT('Compra ',auxNombre));
             INSERT INTO proyecto.compra VALUES ((SELECT MAX(id_egreso) FROM proyecto.egreso));

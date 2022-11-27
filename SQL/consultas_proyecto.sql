@@ -270,7 +270,7 @@ CREATE TRIGGER check_stock
 BEFORE INSERT ON proyecto.tiene
 FOR EACH ROW
 EXECUTE PROCEDURE proyecto.check_stock();
-/*
+
 CREATE OR REPLACE FUNCTION actualizar_stock_por_pedido()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -285,12 +285,12 @@ CREATE TRIGGER actualizar_stock_por_pedido
 AFTER INSERT ON proyecto.tiene
 FOR EACH ROW
 EXECUTE PROCEDURE proyecto.actualizar_stock_por_pedido();
-*/
+
 /*
 INSERT INTO pedido(id_pedido,RUT) VALUES
 (11,'41152666-6');
 INSERT INTO tiene VALUES
-(11,1235,2); */
+(11,1235,2);
 
 CREATE OR REPLACE FUNCTION check_stock_update()
 RETURNS TRIGGER AS $$

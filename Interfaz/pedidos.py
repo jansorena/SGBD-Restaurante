@@ -3,6 +3,7 @@ import psycopg2
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
+from tkinter import messagebox
 from PIL import Image, ImageTk
 import os
 from config import config
@@ -317,7 +318,9 @@ class pedidos(customtkinter.CTkToplevel):
 
             self.mostrar_total_pedido()
 
-        except (Exception, psycopg2.DatabaseError) as error:
+        except (psycopg2.DatabaseError) as error:
+            messagebox.showerror(message=error, title="Error")
+        except Exception as error:
             print(error)
         finally:
             if conn is not None:
@@ -508,6 +511,7 @@ class pedidos(customtkinter.CTkToplevel):
                 conn.close()
 
         self.mostrar_pedidos_f()
+        self.mostrar_mesas_f()
     
     def rellenar_tree_pedidos(self,event):
         curItem = self.tree_pedidos.focus()
@@ -676,7 +680,9 @@ class pedidos(customtkinter.CTkToplevel):
 
             self.mostrar_mesas_f()
 
-        except (Exception, psycopg2.DatabaseError) as error:
+        except (psycopg2.DatabaseError) as error:
+            messagebox.showerror(message=error, title="Error")
+        except Exception as error:
             print(error)
         finally:
             if conn is not None:

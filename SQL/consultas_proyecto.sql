@@ -171,7 +171,7 @@ CREATE OR REPLACE FUNCTION pedido_completado()
 RETURNS TRIGGER AS $$
 BEGIN
 	IF(NEW.estado_pedido = 'entregado') THEN
-		INSERT INTO boleta (id_boleta,id_pedido,total,valor_neto,iva) VALUES
+		INSERT INTO proyecto.boleta (id_boleta,id_pedido,total,valor_neto,iva) VALUES
 			(NEW.id_pedido,NEW.id_pedido,NEW.valor_pedido,NEW.valor_pedido*0.81,NEW.valor_pedido*0.19);
 	END IF;
 	RETURN NEW;

@@ -3,6 +3,7 @@ import psycopg2
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
+from tkinter import messagebox
 from PIL import Image, ImageTk
 import os
 from config import config
@@ -110,8 +111,9 @@ class pedidos(customtkinter.CTkToplevel):
         self.frame2.rowconfigure(3,minsize=20)
         self.frame2.rowconfigure(5,minsize=20)
         self.frame2.rowconfigure(7,minsize=20)
-        self.frame2.rowconfigure(9,minsize=20)
-        self.frame2.rowconfigure(11,minsize=20)
+        
+        self.frame2.rowconfigure(10,minsize=20)
+        self.frame2.rowconfigure(12,minsize=20)
         self.frame2.rowconfigure(14,minsize=20)
         self.frame2.rowconfigure(16,minsize=20)
         self.frame2.rowconfigure(18,minsize=20)
@@ -122,14 +124,14 @@ class pedidos(customtkinter.CTkToplevel):
         self.delivery.grid(row=0,column=1)
 
         # Entry
-        self.id_pedido_delivery = customtkinter.CTkEntry(self.frame2, width=300)
-        self.id_pedido_delivery.grid(row=1,column=1)
+        #self.id_pedido_delivery = customtkinter.CTkEntry(self.frame2, width=300)
+        #self.id_pedido_delivery.grid(row=1,column=1)
         self.direccion_delivery = customtkinter.CTkEntry(self.frame2,width=300)
         self.direccion_delivery.grid(row=2,column=1)
 
         # Etiqueta cuadros de texto
-        self.id_pedido_delivery_label = customtkinter.CTkLabel(self.frame2,text="ID Pedido")
-        self.id_pedido_delivery_label.grid(row=1,column=0)      
+        #self.id_pedido_delivery_label = customtkinter.CTkLabel(self.frame2,text="ID Pedido")
+        #self.id_pedido_delivery_label.grid(row=1,column=0)      
         self.direccion_delivery_label = customtkinter.CTkLabel(self.frame2,text="Direccion")
         self.direccion_delivery_label.grid(row=2,column=0)
 
@@ -138,49 +140,47 @@ class pedidos(customtkinter.CTkToplevel):
         command=self.agregar_pedido_delivery_f)
         self.agregar_pedido_delivery.grid(row=4,column=1, ipadx = 50)
 
-        # Estado
-        self.estado_delivery = customtkinter.CTkEntry(self.frame2, width=300)
-        self.estado_delivery.grid(row=6,column=1)
-
-        self.estado_delivery_label = customtkinter.CTkLabel(self.frame2,text="Estado")
-        self.estado_delivery_label.grid(row=6,column=0)
-
-        self.actualizar_delivery = customtkinter.CTkButton(self.frame2, text="Actualizar estado", 
-        command=self.actualizar_delivery_f)
-        self.actualizar_delivery.grid(row=8,column=1, ipadx = 50)
-
         # En local
 
         self.enLocal = customtkinter.CTkLabel(self.frame2,text="En Local")
-        self.enLocal.grid(row=10,column=1)
+        self.enLocal.grid(row=6,column=1)
 
         # Entry
-        self.id_pedido_local = customtkinter.CTkEntry(self.frame2, width=300)
-        self.id_pedido_local.grid(row=12,column=1)
+        #self.id_pedido_local = customtkinter.CTkEntry(self.frame2, width=300)
+        #self.id_pedido_local.grid(row=8,column=1)
         self.mesa_local = customtkinter.CTkEntry(self.frame2,width=300)
-        self.mesa_local.grid(row=13,column=1)
+        self.mesa_local.grid(row=9,column=1)
 
         # Etiqueta cuadros de texto
-        self.id_pedido_local_label = customtkinter.CTkLabel(self.frame2,text="ID Pedido")
-        self.id_pedido_local_label.grid(row=12,column=0)      
+        #self.id_pedido_local_label = customtkinter.CTkLabel(self.frame2,text="ID Pedido")
+        #self.id_pedido_local_label.grid(row=8,column=0)      
         self.mesa_local_label = customtkinter.CTkLabel(self.frame2,text="Mesa")
-        self.mesa_local_label.grid(row=13,column=0)
+        self.mesa_local_label.grid(row=9,column=0)
 
         # 2 botones
 
         self.agregar_pedido_local = customtkinter.CTkButton(self.frame2, text="Generar Pedido Local", 
-        command=self.agregar_pedido_delivery_f)
-        self.agregar_pedido_local.grid(row=15,column=1, ipadx = 50)
+        command=self.generar_pedido_local_f)
+        self.agregar_pedido_local.grid(row=11,column=1, ipadx = 50)
 
         self.mostrar_mesa_local = customtkinter.CTkButton(self.frame2, text="Mostrar Mesas", 
-        command=self.agregar_pedido_delivery_f)
-        self.mostrar_mesa_local.grid(row=17,column=1, ipadx = 50)
+        command=self.mostrar_mesas_f)
+        self.mostrar_mesa_local.grid(row=13,column=1, ipadx = 50)
 
         columnas = ('Mesa')
         self.tree_mesas = ttk.Treeview(self.frame2,columns=columnas,show='headings')
-        self.tree_mesas.grid(row=19,column=1,ipady=15,ipadx=100)
+        self.tree_mesas.grid(row=15,column=1,ipady=15,ipadx=100)
 
         self.tree_mesas.heading('Mesa', text='Mesa')
+
+        self.tree_mesas.tag_configure('libre', background='green')
+        self.tree_mesas.tag_configure('ocupada', background='red')
+
+        # Estado
+
+        self.actualizar_delivery = customtkinter.CTkButton(self.frame2, text="Completar pedido", 
+        command=self.completar_pedido, fg_color="red", text_color="white")
+        self.actualizar_delivery.grid(row=19,column=1, ipadx = 50, ipady = 50)
     
     def generar_pedido(self):
         # Consultar usuarios en la base de datos
@@ -223,7 +223,7 @@ class pedidos(customtkinter.CTkToplevel):
             """
             SELECT p.id_pedido, p.RUT, p.estado_pedido, p.fecha_pedido
             FROM proyecto.pedido as p
-            ORDER BY p.fecha_pedido DESC;
+            ORDER BY p.id_pedido DESC;
             """
         )
         conn = None
@@ -238,7 +238,9 @@ class pedidos(customtkinter.CTkToplevel):
             cur = conn.cursor()
 
             # Ejecutar los comandos
+            cur.callproc('proyecto.precio_producto',())
             cur.execute(commands)
+            
             pedidos = cur.fetchall()
             
             try:
@@ -314,7 +316,11 @@ class pedidos(customtkinter.CTkToplevel):
             # Commit los cambios
             conn.commit()
 
-        except (Exception, psycopg2.DatabaseError) as error:
+            self.mostrar_total_pedido()
+
+        except (psycopg2.DatabaseError) as error:
+            messagebox.showerror(message=error, title="Error")
+        except Exception as error:
             print(error)
         finally:
             if conn is not None:
@@ -373,6 +379,8 @@ class pedidos(customtkinter.CTkToplevel):
             # Commit los cambios
             conn.commit()
 
+            self.mostrar_total_pedido()
+
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
         finally:
@@ -381,7 +389,9 @@ class pedidos(customtkinter.CTkToplevel):
 
     def agregar_pedido_delivery_f(self):
         # Consultar usuarios en la base de datos
-        sql = """INSERT INTO proyecto.fuera_local(id_pedido) VALUES(%s,%s)"""
+        sql = """
+        INSERT INTO proyecto.fuera_local(id_pedido,direccion) VALUES(%s,%s)
+        """
 
         conn = None
 
@@ -397,9 +407,10 @@ class pedidos(customtkinter.CTkToplevel):
 
             # Ejecutar los comandos
             id_pedido_agregar = self.id_pedido.get()
+            direccion_agregar = self.direccion_delivery.get()
 
             if(id_pedido_agregar != ""):
-                cur.execute(sql,(id_pedido_agregar,))
+                cur.execute(sql,(id_pedido_agregar,direccion_agregar))
 
             # Cerrar la comunicacion con la base de datos
             cur.close()
@@ -414,10 +425,93 @@ class pedidos(customtkinter.CTkToplevel):
                 conn.close()
 
     def mostrar_mesas_f(self):
-        pass
+        commands = (
+            """
+            SELECT *
+            FROM proyecto.mesa as m
+            ORDER BY m.num_mesa ASC;
+            """
+        )
+        conn = None
+        try:
+            # Leer los parametros de configuracion
+            params = config()
 
-    def actualizar_delivery_f(self):
-        pass
+            # Conectar a las base de datos
+            conn = psycopg2.connect(**params)
+
+            # Crear cursor
+            cur = conn.cursor()
+
+            # Ejecutar los comandos
+            cur.execute(commands)
+            
+            mesas = cur.fetchall()
+            
+            try:
+                self.tree_mesas.selection_remove(self.tree_mesas.mesas()[0])
+            except:
+                pass
+
+            for item in self.tree_mesas.get_children():
+                self.tree_mesas.delete(item)
+
+            for mesa in mesas:
+                tag = mesa[1];
+                print(tag)
+                self.tree_mesas.insert('', END, values=mesa, tags=(tag,))
+
+            # Cerrar la comunicacion con la base de datos
+            cur.close()
+
+            # Commit los cambios
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+    def completar_pedido(self):
+        # Consultar usuarios en la base de datos
+        sql = """
+        UPDATE proyecto.pedido
+        SET estado_pedido = 'entregado'
+        WHERE id_pedido = %s;
+        """
+
+        conn = None
+
+        try:
+            # Leer los parametros de configuracion
+            params = config()
+
+            # Conectar a las base de datos
+            conn = psycopg2.connect(**params)
+
+            # Crear cursor
+            cur = conn.cursor()
+
+            # Ejecutar los comandos
+            id_pedido_actualizar = self.id_pedido.get()
+
+            if(id_pedido_actualizar != ""):
+                cur.execute(sql,(id_pedido_actualizar,))
+
+            # Cerrar la comunicacion con la base de datos
+            cur.close()
+
+            # Commit los cambios
+            conn.commit()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+        self.mostrar_pedidos_f()
+        self.mostrar_mesas_f()
     
     def rellenar_tree_pedidos(self,event):
         curItem = self.tree_pedidos.focus()
@@ -439,6 +533,8 @@ class pedidos(customtkinter.CTkToplevel):
             WHERE p.id_pedido = %s AND p.id_pedido = t.id_pedido AND t.id_producto = pr.id_producto;
             """
         )
+
+       
         conn = None
         try:
             # Leer los parametros de configuracion
@@ -452,8 +548,12 @@ class pedidos(customtkinter.CTkToplevel):
 
             # Ejecutar los comandos
             cur.execute(commands,(entrada[0],))
+            
             pedidos = cur.fetchall()
+            
+
             print(pedidos)
+
             try:
                 self.tree.selection_remove(self.tree.selection()[0])
             except:
@@ -463,6 +563,8 @@ class pedidos(customtkinter.CTkToplevel):
                 self.tree.delete(item)
 
             for pedido in pedidos:
+                pedido = list(pedido)
+                pedido[3] = pedido[2]*pedido[3]
                 self.tree.insert('', END, values=pedido)
 
             # Cerrar la comunicacion con la base de datos
@@ -470,6 +572,8 @@ class pedidos(customtkinter.CTkToplevel):
 
             # Commit los cambios
             conn.commit()
+
+            self.mostrar_total_pedido()
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
         finally:
@@ -489,5 +593,100 @@ class pedidos(customtkinter.CTkToplevel):
         except:
             pass
     
+    def mostrar_total_pedido(self):
+        sql = (
+        """
+        SELECT p.valor_pedido
+        FROM proyecto.pedido as p
+        WHERE p.id_pedido = %s;
+        """
+        )
+        conn = None
+        id_pedido = self.id_pedido.get()
+        self.total.destroy()
+        try:
+            # Leer los parametros de configuracion
+            params = config()
+
+            # Conectar a las base de datos
+            conn = psycopg2.connect(**params)
+
+            # Crear cursor
+            cur = conn.cursor()
+
+            # Ejecutar los comandos
+            cur.execute(sql,(id_pedido,))
+            
+            total_num = cur.fetchall()
+
+            x=str(total_num)
+            x=x.replace("[","")
+            x=x.replace("]","")
+            x=x.replace("(","")
+            x=x.replace(")","")
+            x=x.replace(",","")
+
+            text = 'Total: ' + x
+            self.total = customtkinter.CTkLabel(self.frame1,text=text)
+            self.total.grid(row=17,column=1,sticky="e")
+
+            # Cerrar la comunicacion con la base de datos
+            cur.close()
+
+            # Commit los cambios
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+    def generar_pedido_local_f(self):
+         # Consultar usuarios en la base de datos
+        sql1 = """
+        INSERT INTO proyecto.en_local(id_pedido) VALUES(%s)
+        """
+        sql2 = """
+        INSERT INTO proyecto.ocupa(num_mesa, id_pedido, RUT) VALUES (%s,%s,%s)
+
+        """
+
+        conn = None
+
+        try:
+            # Leer los parametros de configuracion
+            params = config()
+
+            # Conectar a las base de datos
+            conn = psycopg2.connect(**params)
+
+            # Crear cursor
+            cur = conn.cursor()
+
+            # Ejecutar los comandos
+            id_pedido_agregar = self.id_pedido.get()
+            mesa_agregar = self.mesa_local.get()
+            rut_agregar = self.rut.get()
+
+            if(id_pedido_agregar != ""):
+                cur.execute(sql1,(id_pedido_agregar,))
+                cur.execute(sql2,(mesa_agregar,id_pedido_agregar,rut_agregar))
+
+            # Cerrar la comunicacion con la base de datos
+            cur.close()
+
+            # Commit los cambios
+            conn.commit()
+
+            self.mostrar_mesas_f()
+
+        except (psycopg2.DatabaseError) as error:
+            messagebox.showerror(message=error, title="Error")
+        except Exception as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
     def mostrar_productos_2(self):
         pass

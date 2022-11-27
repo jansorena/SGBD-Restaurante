@@ -15,6 +15,7 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
+--asigna el valor de los productos (a todos)
 CREATE OR REPLACE FUNCTION precio_producto()
 RETURNS VOID AS $$
 BEGIN
@@ -22,6 +23,7 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
+--modifica el valor de un producto si se modifica el precio de un ingrediente
 CREATE OR REPLACE FUNCTION nuevo_precio_producto()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -51,6 +53,7 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
+--se calcula el precio del pedido cada vez que se inserta en tiene
 CREATE OR REPLACE FUNCTION precio_pedido()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -90,6 +93,9 @@ END
 $$ LANGUAGE plpgsql;
 
 --------------------- CONSULTAS STOCK ---------------------------------------------------
+
+--Si el stock es menor a 10 se inserta en egreso una tupla con valor null y descripcion de lo que se debe comprar
+--en compra se referencia al egreso y en actualiza se crea la tupla respectiva con estado no actualizado y cantidad null
 CREATE OR REPLACE FUNCTION bajo_stock()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -98,7 +104,7 @@ cont INT := (SELECT COUNT(*) FROM proyecto.actualiza AS a WHERE a.id_ingrediente
 BEGIN
 	IF(SELECT stock
 	FROM proyecto.ingrediente AS i
-	WHERE i.id_ingrediente = NEW.id_ingrediente AND i.stock <= 0) <= 0 THEN
+	WHERE i.id_ingrediente = NEW.id_ingrediente AND i.stock <= 10) <= 10 THEN
         IF (cont = 0) THEN
             INSERT INTO proyecto.egreso(id_egreso,fecha_egreso,descripcion) VALUES 
             ((SELECT MAX(id_egreso) FROM egreso)+1,CURRENT_DATE,CONCAT('Compra ',auxNombre));
@@ -120,6 +126,7 @@ AFTER UPDATE ON proyecto.ingrediente
 FOR EACH ROW 
 EXECUTE PROCEDURE proyecto.bajo_stock();
 
+--si una tupla de actualiza cambia su estado a actualizado, se suma el stock comprado a el ingrediente respectivo
 CREATE OR REPLACE FUNCTION actualizar_stock()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -139,6 +146,7 @@ EXECUTE PROCEDURE proyecto.actualizar_stock();
 
 ------ CONSULTAS EGRESOS -----
 
+--se modifica el total del egreso de la tupla previamente insertada por bajo stock, si la compra asociada a actualiza cambia su estado a actualizado 
 CREATE OR REPLACE FUNCTION actualizar_total_egreso_por_compra()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -158,6 +166,7 @@ EXECUTE PROCEDURE proyecto.actualizar_total_egreso_por_compra();
 
 --- CONSULTAS PEDIDOS ------
 
+--si se "crea" la boleta asociada a un pedido, este se considera como entregado, por lo que el estado es modificado a 'entregado'
 CREATE OR REPLACE FUNCTION pedido_completado()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -172,6 +181,8 @@ FOR EACH ROW
 EXECUTE PROCEDURE proyecto.pedido_completado();
 
 ----- CONSULTAS MESAS -------
+
+-- si se "crea" una boleta se libera la mesa asociada al pedido que ocupa dicha mesa
 CREATE OR REPLACE FUNCTION liberar_mesa()
 RETURNS TRIGGER AS $$
 DECLARE 
@@ -187,6 +198,7 @@ AFTER INSERT ON proyecto.boleta
 FOR EACH ROW
 EXECUTE PROCEDURE proyecto.liberar_mesa();
 
+--si se inserta una tupla en ocupa, se marca como ocupada la mesa asociada a dicha tupla
 CREATE OR REPLACE FUNCTION mesa_ocupada()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -200,6 +212,7 @@ AFTER INSERT ON proyecto.ocupa
 FOR EACH ROW
 EXECUTE PROCEDURE proyecto.mesa_ocupada();
 
+--se muestran las mesas libres
 CREATE OR REPLACE VIEW mesas_libres AS
 SELECT num_mesa
 FROM proyecto.mesa AS m
@@ -207,6 +220,7 @@ WHERE m.estado_mesa = 'libre';
 
 --SELECT * FROM mesas_libres;
 
+--se muestran todos los pedidos con estado 'no entregado'
 CREATE OR REPLACE VIEW pedidos_pendientes AS
 SELECT p.id_pedido, c.nombre, c.RUT
 FROM proyecto.pedido AS p, proyecto.cliente AS c
@@ -214,6 +228,7 @@ WHERE p.estado_pedido = 'no entregado' AND p.RUT = c.RUT;
 
 --SELECT * FROM pedidos_pendientes;
 
+--retorna la cantidad total vendida de un producto segun el paso por parametro de su nombre
 CREATE OR REPLACE FUNCTION cantidad_vendida(VARCHAR)
 RETURNS INT AS $$
 DECLARE cantidad INT;
@@ -223,6 +238,7 @@ BEGIN
 END 
 $$ LANGUAGE plpgsql;
 
+--Se muestra de manera ordenada y descendente los productos mas vendidos
 CREATE OR REPLACE VIEW productos_vendidos AS
 SELECT nombre, cantidad_vendida(nombre)
 FROM proyecto.producto
@@ -230,6 +246,8 @@ ORDER BY 2 DESC;
 
 --SELECT * FROM productos_vendidos;
 
+--esta funcion creo que es inutil xd
+--muestra la cantidad que tiene un producto especifico de un ingrediente especifico (se pasan los nombres por parametro)
 CREATE OR REPLACE FUNCTION cantidad_ingrediente_en_producto(nombreI VARCHAR,nombreP VARCHAR)
 RETURNS REAL AS $$
 DECLARE cantidad REAL;
@@ -241,6 +259,7 @@ $$ LANGUAGE plpgsql;
 
 --SELECT cantidad_ingrediente_en_producto('lechuga','Hamburguesa1');
 
+--cambia el stock y fecha de expiracion a 0 y null, respectivamente, a todo ingrediente vencido
 CREATE OR REPLACE FUNCTION ingrediente_vencido()
 RETURNS void AS $$
 BEGIN
@@ -251,6 +270,7 @@ $$ LANGUAGE plpgsql;
 
 --SELECT ingrediente_vencido();
 
+--chequea el stock de un ingrediente es suficiente para un pedido antes que se inserte en tiene
 CREATE OR REPLACE FUNCTION check_stock()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -271,6 +291,7 @@ BEFORE INSERT ON proyecto.tiene
 FOR EACH ROW
 EXECUTE PROCEDURE proyecto.check_stock();
 
+--se resta el stock de un ingrediente si es que si es suficiente para ser pedido
 CREATE OR REPLACE FUNCTION actualizar_stock_por_pedido()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -286,12 +307,14 @@ AFTER INSERT ON proyecto.tiene
 FOR EACH ROW
 EXECUTE PROCEDURE proyecto.actualizar_stock_por_pedido();
 
-
+/*
 INSERT INTO pedido(id_pedido,RUT) VALUES
 (11,'41152666-6');
 INSERT INTO tiene VALUES
 (11,1235,2);
+*/
 
+--se verifica si el stock disponible es suficiente para que se realice una modificacion de la cantidad de un producto en un ingrediente
 CREATE OR REPLACE FUNCTION check_stock_update()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -310,6 +333,7 @@ BEFORE UPDATE ON proyecto.tiene
 FOR EACH ROW
 EXECUTE PROCEDURE proyecto.check_stock_update();
 
+--si se actualiza el contenido de un pedido se modifica el nuevo stock disponible del ingrediente
 CREATE OR REPLACE FUNCTION actualizar_stock_por_modificacion()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -327,6 +351,7 @@ EXECUTE PROCEDURE proyecto.actualizar_stock_por_modificacion();
 
 --UPDATE tiene SET cantidad_producto = 4 WHERE id_pedido = 1 AND id_producto = 23422;
 
+--se asignan los valores faltantes a una boleta recien creada
 CREATE OR REPLACE FUNCTION rellenar_boleta()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -344,6 +369,7 @@ BEFORE INSERT ON proyecto.boleta
 FOR EACH ROW
 EXECUTE PROCEDURE proyecto.rellenar_boleta();
 
+--si se quiere asignar a un cliente una mesa ya ocupada no se permite
 CREATE OR REPLACE FUNCTION check_mesa()
 RETURNS TRIGGER AS $$
 BEGIN

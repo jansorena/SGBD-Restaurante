@@ -1,3 +1,6 @@
+
+-------------------CONSULTAS DE PRECIOS-----------------------------------------
+
 -- Calcular el precio de un producto en base a los ingredientes
 CREATE OR REPLACE FUNCTION precio(id_calcular INT)
 RETURNS REAL AS $$
@@ -61,6 +64,8 @@ AFTER INSERT OR UPDATE ON proyecto.tiene
 FOR EACH ROW
 EXECUTE PROCEDURE proyecto.precio_pedido();
 
+------------------------CONSULTAS FINANZAS ---------------------------------------------------------------------------
+
 -- Ganancia total: Ingresos-Egresos
 CREATE OR REPLACE FUNCTION ganancia(fecha DATE)
 RETURNS REAL AS $$
@@ -84,12 +89,7 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
-/*
-SELECT precio('Hamburguesa1');
-SELECT precio_pedido(1);
-SELECT ganancia(CURRENT_DATE);
-*/
-
+--------------------- CONSULTAS STOCK ---------------------------------------------------
 CREATE OR REPLACE FUNCTION bajo_stock()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -120,12 +120,6 @@ AFTER UPDATE ON proyecto.ingrediente
 FOR EACH ROW 
 EXECUTE PROCEDURE proyecto.bajo_stock();
 
-/*
-UPDATE ingrediente
-SET stock = 0
-WHERE id_ingrediente = 3;
-*/
-
 CREATE OR REPLACE FUNCTION actualizar_stock()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -141,6 +135,9 @@ CREATE TRIGGER actualizar_stock
 AFTER UPDATE ON proyecto.actualiza
 FOR EACH ROW 
 EXECUTE PROCEDURE proyecto.actualizar_stock();
+
+
+------ CONSULTAS EGRESOS -----
 
 CREATE OR REPLACE FUNCTION actualizar_total_egreso_por_compra()
 RETURNS TRIGGER AS $$
@@ -159,11 +156,7 @@ AFTER UPDATE ON proyecto.actualiza
 FOR EACH ROW 
 EXECUTE PROCEDURE proyecto.actualizar_total_egreso_por_compra();
 
-/*
-UPDATE actualiza 
-SET cantidad_actualiza = 20, fecha_exp = '2022-12-31', estado_actualiza = 'actualizado'
-WHERE id_egreso = 11;
-*/
+--- CONSULTAS PEDIDOS ------
 
 CREATE OR REPLACE FUNCTION pedido_completado()
 RETURNS TRIGGER AS $$
@@ -178,6 +171,7 @@ AFTER INSERT ON proyecto.boleta
 FOR EACH ROW
 EXECUTE PROCEDURE proyecto.pedido_completado();
 
+----- CONSULTAS MESAS -------
 CREATE OR REPLACE FUNCTION liberar_mesa()
 RETURNS TRIGGER AS $$
 DECLARE 

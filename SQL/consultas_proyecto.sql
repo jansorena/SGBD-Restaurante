@@ -170,13 +170,18 @@ EXECUTE PROCEDURE proyecto.actualizar_total_egreso_por_compra();
 CREATE OR REPLACE FUNCTION pedido_completado()
 RETURNS TRIGGER AS $$
 BEGIN
-	UPDATE proyecto.pedido SET estado_pedido = 'entregado' WHERE id_pedido = NEW.id_pedido;
+	IF(NEW.estado_pedido = 'entregado') THEN
+		INSERT INTO boleta (id_boleta,id_pedido,total,valor_neto,iva) VALUES
+			(NEW.id_pedido,NEW.id_pedido,NEW.valor_pedido,NEW.valor_pedido*0.81,NEW.valor_pedido*0.19);
+	END IF;
 	RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
 
+--UPDATE pedido SET estado_pedido = 'entregado' WHERE id_pedido = 1 OR id_pedido = 5;
+
 CREATE TRIGGER pedido_completado
-AFTER INSERT ON proyecto.boleta
+AFTER UPDATE ON proyecto.pedido
 FOR EACH ROW
 EXECUTE PROCEDURE proyecto.pedido_completado();
 
@@ -350,24 +355,6 @@ FOR EACH ROW
 EXECUTE PROCEDURE proyecto.actualizar_stock_por_modificacion();
 
 --UPDATE tiene SET cantidad_producto = 4 WHERE id_pedido = 1 AND id_producto = 23422;
-
---se asignan los valores faltantes a una boleta recien creada
-CREATE OR REPLACE FUNCTION rellenar_boleta()
-RETURNS TRIGGER AS $$
-DECLARE
-valorP INT := (SELECT valor_pedido FROM proyecto.pedido AS p WHERE id_pedido = NEW.id_pedido);
-BEGIN
-	NEW.total := valorP;
-	NEW.valor_neto := valorP*0.81;
-	NEW.iva := valorP*0.19;
-	RETURN NEW;
-END
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER rellenar_boleta
-BEFORE INSERT ON proyecto.boleta
-FOR EACH ROW
-EXECUTE PROCEDURE proyecto.rellenar_boleta();
 
 --si se quiere asignar a un cliente una mesa ya ocupada no se permite
 CREATE OR REPLACE FUNCTION check_mesa()

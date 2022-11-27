@@ -2137,16 +2137,5 @@ INSERT INTO ocupa VALUES
 (8,8,'84464435-3'),
 (10,10,'32947945-5');
 
-INSERT INTO boleta (id_boleta,id_pedido) VALUES
-(1,1),
-(2,2),
-(3,3),
-(4,4),
-(5,5),
-(6,6),
-(7,7),
-(8,8),
-(9,9),
-(10,10);
 
 --update ingrediente set stock = 20 WHERE nombre = 'ketchup';

@@ -7,6 +7,7 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 import os
 from config import config
+import matplotlib.pyplot as plt
 
 class finanzas(customtkinter.CTkToplevel):
     def __init__(self,master):
@@ -31,27 +32,252 @@ class finanzas(customtkinter.CTkToplevel):
         self.button_compras.grid(row=1,column=3,ipadx=30,ipady=30)
 
         self.button_pago_trabajadores = customtkinter.CTkButton(self, text="Pago Trabajadores",
-        command=self.window_egresos)
+        command=self.window_pago_trabajadores)
         self.button_pago_trabajadores.grid(row=3,column=1,ipadx=30,ipady=30)
 
         self.button_otros_egresos = customtkinter.CTkButton(self, text="Otros Egresos",
-        command=self.window_egresos)
+        command=self.window_otros_egresos)
         self.button_otros_egresos.grid(row=3,column=3,ipadx=30,ipady=30)
 
         self.button_ganancias = customtkinter.CTkButton(self, text="Ganacias",
-        command=self.window_egresos)
+        )
         self.button_ganancias.grid(row=5,column=1,ipadx=30,ipady=30)
 
         self.button_productos_mas_vendidos = customtkinter.CTkButton(self, text="Productos mas vendidos",
-        command=self.window_egresos)
+        command=self.window_productos_mas_vendidos)
         self.button_productos_mas_vendidos.grid(row=5,column=3,ipadx=30,ipady=30)
 
+    def window_productos_mas_vendidos(self):
+        labels = ()
+        sizes = []
 
-    def window_egresos(self):
+        # Consultar usuarios en la base de datos
+        commands = (
+            """
+            SELECT * FROM proyecto.productos_vendidos;
+            """
+        )
+        conn = None
+        try:
+            # Leer los parametros de configuracion
+            params = config()
+
+            # Conectar a las base de datos
+            conn = psycopg2.connect(**params)
+
+            # Crear cursor
+            cur = conn.cursor()
+
+            # Ejecutar los comandos
+            cur.execute(commands)
+            productos = cur.fetchall()
+
+            for producto in productos:
+                labels = labels + (producto[0],)
+                sizes.append(producto[1])
+
+            # Cerrar la comunicacion con la base de datos
+            cur.close()
+
+            # Commit los cambios
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+        
+        # Pie chart, where the slices will be ordered and plotted counter-clockwise:
+        #labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
+        #sizes = [15, 30, 45, 10]
+        #explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
+
+        fig1, ax1 = plt.subplots(figsize=(10, 10))
+        ax1.pie(sizes, labels=labels, autopct='%1.1f%%',
+                shadow=True, startangle=90)
+        ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+
+        plt.show()
+
+    def window_otros_egresos(self):
         window = customtkinter.CTkToplevel(self)
-        window.title("Egresos")
+        window.title("Otros Egresos")
+        window.rowconfigure(2,minsize=20)
+        window.rowconfigure(4,minsize=20)
+        window.rowconfigure(6,minsize=20)
+
+        columnas_pedidos = ('id_egreso','fecha_egreso','descripcion','total')
+
+        window.tree = ttk.Treeview(window,columns=columnas_pedidos,show='headings')
+        window.tree.grid(row=7,column=0, columnspan=2, ipady=250, ipadx=100)
+        window.tree.column('id_egreso',width=100)
+        window.tree.heading('id_egreso', text='ID Egreso')
+        window.tree.column('fecha_egreso',width=100)
+        window.tree.heading('fecha_egreso', text='Fecha Egreso')       
+        window.tree.column('descripcion',width=100)
+        window.tree.heading('descripcion', text='Descripcion') 
+        window.tree.column('total',width=100)
+        window.tree.heading('total', text='Total')
+
+        # add a scrollbar
+        scrollbar = ttk.Scrollbar(window, orient=tk.VERTICAL, command=window.tree.yview)
+        window.tree.configure(yscroll=scrollbar.set)
+        scrollbar.grid(row=7, column=2, ipady=340)
+
+        window.descripcion = customtkinter.CTkEntry(window, width=300)
+        window.descripcion.grid(row=0,column=1)
+        window.descripcion_label = customtkinter.CTkLabel(window,text="Descripcion")
+        window.descripcion_label.grid(row=0,column=0)
+
+        window.total = customtkinter.CTkEntry(window, width=300)
+        window.total.grid(row=1,column=1)
+        window.total_label = customtkinter.CTkLabel(window,text="Total")
+        window.total_label.grid(row=1,column=0)
 
 
+        window.button_mostrar_otros_egresos = customtkinter.CTkButton(window, text="Mostrar otros egresos",
+        command=lambda: self.mostrar_otros_egresos(window.tree))
+        window.button_mostrar_otros_egresos.grid(row=3,column=0,columnspan=2, ipadx = 50)
+
+        window.button_agregar_otros_egresos = customtkinter.CTkButton(window, text="Agregar otros egresos",
+        command=lambda: self.agregar_otros_egresos(window.tree))
+        window.button_agregar_otros_egresos.grid(row=5,column=0,columnspan=2, ipadx = 50)
+
+    def agregar_otros_egresos(self,tree):
+        pass
+
+    def mostrar_otros_egresos(self,tree):
+        # Consultar usuarios en la base de datos
+        commands = (
+            """
+            SELECT e.id_egreso,e.fecha_egreso,e.descripcion, e.total
+            FROM proyecto.egreso as e, proyecto.otro_egreso as oe
+            WHERE e.id_egreso = oe.id_egreso;
+            """
+        )
+        conn = None
+        try:
+            # Leer los parametros de configuracion
+            params = config()
+
+            # Conectar a las base de datos
+            conn = psycopg2.connect(**params)
+
+            # Crear cursor
+            cur = conn.cursor()
+
+            # Ejecutar los comandos
+            cur.execute(commands)
+            actualizas = cur.fetchall()
+            
+            try:
+                tree.selection_remove(tree.selection()[0])
+            except:
+                pass
+
+            for item in tree.get_children():
+                tree.delete(item)
+
+            for actualiza in actualizas:
+                tree.insert('', END, values=actualiza)
+
+            # Cerrar la comunicacion con la base de datos
+            cur.close()
+
+            # Commit los cambios
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+    def window_pago_trabajadores(self):
+        window = customtkinter.CTkToplevel(self)
+        window.title("Pago Trabajadores")
+        window.rowconfigure(1,minsize=20)
+        window.rowconfigure(3,minsize=20)
+        window.rowconfigure(5,minsize=20)
+
+        columnas_pedidos = ('id_egreso','fecha_egreso','descripcion','total')
+
+        window.tree = ttk.Treeview(window,columns=columnas_pedidos,show='headings')
+        window.tree.grid(row=6,column=0, columnspan=2, ipady=250, ipadx=100)
+        window.tree.column('id_egreso',width=100)
+        window.tree.heading('id_egreso', text='ID Egreso')
+        window.tree.column('fecha_egreso',width=100)
+        window.tree.heading('fecha_egreso', text='Fecha Egreso')       
+        window.tree.column('descripcion',width=100)
+        window.tree.heading('descripcion', text='Descripcion') 
+        window.tree.column('total',width=100)
+        window.tree.heading('total', text='Total')
+
+        # add a scrollbar
+        scrollbar = ttk.Scrollbar(window, orient=tk.VERTICAL, command=window.tree.yview)
+        window.tree.configure(yscroll=scrollbar.set)
+        scrollbar.grid(row=6, column=2, ipady=340)
+
+        window.rut = customtkinter.CTkEntry(window, width=300)
+        window.rut.grid(row=0,column=1)
+        window.rut_label = customtkinter.CTkLabel(window,text="RUT")
+        window.rut_label.grid(row=0,column=0)   
+
+        window.button_mostrar_pago_trabajador = customtkinter.CTkButton(window, text="Mostrar pagos trabajador",
+        command=lambda: self.mostrar_pagos_trabajador(window.tree))
+        window.button_mostrar_pago_trabajador.grid(row=4,column=0,columnspan=2, ipadx = 50)
+
+        window.button_pago_trabajador = customtkinter.CTkButton(window, text="Pagar trabajador",
+        command=lambda: self.agregar_pago_trabajador_f(window.tree,window.rut))
+        window.button_pago_trabajador.grid(row=2,column=0,columnspan=2, ipadx = 50)
+
+    def mostrar_pagos_trabajador(self,tree):
+         # Consultar usuarios en la base de datos
+        commands = (
+            """
+            SELECT e.id_egreso,e.fecha_egreso,e.descripcion, e.total
+            FROM proyecto.egreso as e, proyecto.pago_trabajador as pt
+            WHERE e.id_egreso = pt.id_egreso;
+            """
+        )
+        conn = None
+        try:
+            # Leer los parametros de configuracion
+            params = config()
+
+            # Conectar a las base de datos
+            conn = psycopg2.connect(**params)
+
+            # Crear cursor
+            cur = conn.cursor()
+
+            # Ejecutar los comandos
+            cur.execute(commands)
+            actualizas = cur.fetchall()
+            
+            try:
+                tree.selection_remove(tree.selection()[0])
+            except:
+                pass
+
+            for item in tree.get_children():
+                tree.delete(item)
+
+            for actualiza in actualizas:
+                tree.insert('', END, values=actualiza)
+
+            # Cerrar la comunicacion con la base de datos
+            cur.close()
+
+            # Commit los cambios
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+    def agregar_pago_trabajador_f(self,tree,rut):
+        pass
 
     def window_compras(self):
         window = customtkinter.CTkToplevel(self)

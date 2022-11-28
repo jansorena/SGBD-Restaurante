@@ -41,7 +41,8 @@ class MainMenu(customtkinter.CTk):
         command=self.window_pedidos)
         self.button_pedidos.grid(row=3,column=1,ipadx=30,ipady=30)
 
-        self.button_finanzas = customtkinter.CTkButton(self, text="  Finanzas  ", image=self.finanzas_image)
+        self.button_finanzas = customtkinter.CTkButton(self, text="  Finanzas  ", image=self.finanzas_image,
+        command=self.window_finanzas)
         self.button_finanzas.grid(row=3,column=3,ipadx=30,ipady=30)
 
         self.button_ingredientes = customtkinter.CTkButton(self, text="Ingredientes", image=self.ingredientes_image,

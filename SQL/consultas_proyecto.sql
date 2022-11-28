@@ -137,6 +137,16 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION pago_otros_pagos(descripcion VARCHAR, total INT)
+RETURNS VOID AS $$
+DECLARE
+auxID INT := (SELECT MAX(id_egreso) FROM proyecto.egreso);
+BEGIN
+	INSERT INTO proyecto.egreso VALUES (auxID+1,CURRENT_DATE,descripcion,total);
+	INSERT INTO proyecto.otro_egreso VALUES (auxID+1);
+END
+$$ LANGUAGE plpgsql;
+
 --retorna la cantidad total vendida de un producto segun el paso por parametro de su nombre
 CREATE OR REPLACE FUNCTION cantidad_vendida(VARCHAR)
 RETURNS INT AS $$

@@ -326,11 +326,37 @@ class finanzas(customtkinter.CTkToplevel):
         window.button_mostrar_otros_egresos.grid(row=3,column=0,columnspan=2, ipadx = 50)
 
         window.button_agregar_otros_egresos = customtkinter.CTkButton(window, text="Agregar otros egresos",
-        command=lambda: self.agregar_otros_egresos(window.tree))
+        command=lambda: self.agregar_otros_egresos(window.tree,window.descripcion,window.total))
         window.button_agregar_otros_egresos.grid(row=5,column=0,columnspan=2, ipadx = 50)
 
-    def agregar_otros_egresos(self,tree):
-        pass
+    def agregar_otros_egresos(self,tree,descripcion,total):
+        # Consultar usuarios en la base de datos
+        conn = None
+        try:
+            # Leer los parametros de configuracion
+            params = config()
+
+            # Conectar a las base de datos
+            conn = psycopg2.connect(**params)
+
+            # Crear cursor
+            cur = conn.cursor()
+
+            # Ejecutar los comandos
+            cur.callproc('proyecto.pago_otros_pagos',(descripcion.get(),total.get()))
+            
+            # Cerrar la comunicacion con la base de datos
+            cur.close()
+
+            # Commit los cambios
+            conn.commit()
+
+            self.mostrar_otros_egresos(tree)
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
 
     def mostrar_otros_egresos(self,tree):
         # Consultar usuarios en la base de datos
@@ -482,9 +508,10 @@ class finanzas(customtkinter.CTkToplevel):
             # Cerrar la comunicacion con la base de datos
             cur.close()
 
-            self.mostrar_pagos_trabajador(tree)
             # Commit los cambios
             conn.commit()
+
+            self.mostrar_pagos_trabajador(tree)
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
         finally:

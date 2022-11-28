@@ -174,7 +174,7 @@ DECLARE
 cantidad INT;
 valor INT := (SELECT valor_producto FROM proyecto.producto AS p WHERE p.nombre = $1);
 BEGIN
-	cantidad := valor * cantidad_vendida($1);
+	cantidad := valor * proyecto.cantidad_vendida($1);
 	IF(cantidad IS NOT NULL)  THEN
 		RETURN cantidad;
 	ELSE

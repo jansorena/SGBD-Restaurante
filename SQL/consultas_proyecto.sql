@@ -284,7 +284,7 @@ CREATE OR REPLACE FUNCTION check_stock()
 RETURNS TRIGGER AS $$
 BEGIN
 	IF((SELECT COUNT(*) FROM proyecto.ingrediente AS i, proyecto.producto AS p, proyecto.compone AS c
-		WHERE i.id_ingrediente = c.id_ingrediente AND c.id_producto = p.id_producto AND c.cantidad_ingrediente*NEW.cantidad_producto > i.stock)) > 0
+		WHERE i.id_ingrediente = c.id_ingrediente AND c.id_producto = p.id_producto AND p.id_producto = NEW.id_producto AND c.cantidad_ingrediente*NEW.cantidad_producto > i.stock)) > 0
 		THEN
 		--DELETE FROM proyecto.en_local WHERE id_pedido = NEW.id_pedido;		
 		--DELETE FROM proyecto.pedido WHERE id_pedido = NEW.id_pedido;
@@ -328,7 +328,7 @@ CREATE OR REPLACE FUNCTION check_stock_update()
 RETURNS TRIGGER AS $$
 BEGIN
 	IF((SELECT COUNT(*) FROM proyecto.ingrediente AS i, proyecto.producto AS p, proyecto.compone AS c
-		WHERE i.id_ingrediente = c.id_ingrediente AND c.id_producto = p.id_producto AND c.cantidad_ingrediente*(NEW.cantidad_producto - OLD.cantidad_producto) > i.stock)) > 0
+		WHERE i.id_ingrediente = c.id_ingrediente AND c.id_producto = p.id_producto AND p.id_producto = NEW.id_producto AND c.cantidad_ingrediente*(NEW.cantidad_producto - OLD.cantidad_producto) > i.stock)) > 0
 		THEN
 		RAISE EXCEPTION 'No se puede modificar el pedido por falta de stock';	
 	ELSE	

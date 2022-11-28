@@ -137,11 +137,34 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION ingreso_producto(VARCHAR)
+--retorna la cantidad total vendida de un producto segun el paso por parametro de su nombre
+CREATE OR REPLACE FUNCTION cantidad_vendida(VARCHAR)
 RETURNS INT AS $$
 DECLARE cantidad INT;
 BEGIN
-	cantidad := (SELECT SUM(valor_pedido) FROM proyecto.producto AS p, proyecto.tiene AS t, proyecto.pedido AS pe WHERE p.nombre = $1 AND pe.estado_pedido = 'entregado' AND p.id_producto = t.id_producto AND pe.id_pedido = t.id_pedido);
+	cantidad := (SELECT SUM(cantidad_producto) FROM proyecto.producto AS p, proyecto.tiene AS t, proyecto.pedido AS pe WHERE p.nombre = $1 AND pe.estado_pedido = 'entregado' AND p.id_producto = t.id_producto AND pe.id_pedido = t.id_pedido);
+	IF(cantidad IS NOT NULL)  THEN
+		RETURN cantidad;
+	ELSE
+		RETURN 0;
+	END IF;
+END 
+$$ LANGUAGE plpgsql;
+
+--Se muestra de manera ordenada y descendente los productos mas vendidos
+CREATE OR REPLACE VIEW productos_vendidos AS
+SELECT nombre, cantidad_vendida(nombre)
+FROM proyecto.producto
+WHERE cantidad_vendida(nombre) > 0
+ORDER BY 2 DESC;
+
+CREATE OR REPLACE FUNCTION ingreso_producto(VARCHAR)
+RETURNS INT AS $$
+DECLARE 
+cantidad INT;
+valor INT := (SELECT valor_producto FROM proyecto.producto AS p WHERE p.nombre = $1);
+BEGIN
+	cantidad := valor * cantidad_vendida($1);
 	IF(cantidad IS NOT NULL)  THEN
 		RETURN cantidad;
 	ELSE
@@ -297,29 +320,6 @@ FROM proyecto.pedido AS p, proyecto.cliente AS c
 WHERE p.estado_pedido = 'no entregado' AND p.RUT = c.RUT;
 
 --SELECT * FROM pedidos_pendientes;
-
---retorna la cantidad total vendida de un producto segun el paso por parametro de su nombre
-CREATE OR REPLACE FUNCTION cantidad_vendida(VARCHAR)
-RETURNS INT AS $$
-DECLARE cantidad INT;
-BEGIN
-	cantidad := (SELECT SUM(cantidad_producto) FROM proyecto.producto AS p, proyecto.tiene AS t, proyecto.pedido AS pe WHERE p.nombre = $1 AND pe.estado_pedido = 'entregado' AND p.id_producto = t.id_producto AND pe.id_pedido = t.id_pedido);
-	IF(cantidad IS NOT NULL)  THEN
-		RETURN cantidad;
-	ELSE
-		RETURN 0;
-	END IF;
-END 
-$$ LANGUAGE plpgsql;
-
---Se muestra de manera ordenada y descendente los productos mas vendidos
-CREATE OR REPLACE VIEW productos_vendidos AS
-SELECT nombre, cantidad_vendida(nombre)
-FROM proyecto.producto
-WHERE cantidad_vendida(nombre) > 0
-ORDER BY 2 DESC;
-
---SELECT * FROM productos_vendidos;
 
 --esta funcion creo que es inutil xd
 --muestra la cantidad que tiene un producto especifico de un ingrediente especifico (se pasan los nombres por parametro)

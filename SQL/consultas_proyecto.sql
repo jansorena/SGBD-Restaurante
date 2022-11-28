@@ -122,7 +122,8 @@ $$ LANGUAGE plpgsql;
 --Se muestra de manera ordenada y descendente los productos mas vendidos
 CREATE OR REPLACE VIEW productos_mayor_ingresos AS
 SELECT nombre, ingreso_producto(nombre)
-FROM proyecto.producto 
+FROM proyecto.producto
+WHERE ingreso_producto(nombre) > 0
 ORDER BY 2 DESC;
 
 --------------------- CONSULTAS STOCK ---------------------------------------------------
@@ -283,7 +284,8 @@ $$ LANGUAGE plpgsql;
 --Se muestra de manera ordenada y descendente los productos mas vendidos
 CREATE OR REPLACE VIEW productos_vendidos AS
 SELECT nombre, cantidad_vendida(nombre)
-FROM proyecto.producto 
+FROM proyecto.producto
+WHERE cantidad_vendida(nombre) > 0
 ORDER BY 2 DESC;
 
 --SELECT * FROM productos_vendidos;

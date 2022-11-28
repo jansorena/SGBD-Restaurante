@@ -92,6 +92,37 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION ingreso_mensual(mes INT, anyo INT)
+RETURNS INT AS $$
+DECLARE
+ingresos INT;
+BEGIN
+	ingresos := (SELECT SUM(total) FROM proyecto.boleta AS b WHERE EXTRACT(MONTH FROM b.fecha_venta) = mes AND EXTRACT(YEAR FROM b.fecha_venta) = anyo);
+	RETURN ingresos;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION egreso_mensual(mes INT, anyo INT)
+RETURNS INT AS $$
+DECLARE
+egresos INT;
+BEGIN
+	egresos := (SELECT SUM(total) FROM proyecto.egreso AS e WHERE EXTRACT(MONTH FROM e.fecha_egreso) = mes AND EXTRACT(YEAR FROM e.fecha_egreso) = anyo);
+	RETURN egresos;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION ganancia_mensual(mes INT, anyo INT)
+RETURNS INT AS $$
+DECLARE
+ganacias INT;
+BEGIN
+	ganacias := (ingreso_mensual(mes,anyo) - egreso_mensual(mes,anyo));
+	RETURN ganacias;
+END
+$$ LANGUAGE plpgsql;
+
+
 CREATE OR REPLACE FUNCTION pago_trabajador(id VARCHAR)
 RETURNS VOID AS $$
 DECLARE
@@ -119,7 +150,7 @@ BEGIN
 END 
 $$ LANGUAGE plpgsql;
 
---Se muestra de manera ordenada y descendente los productos mas vendidos
+--Se muestra de manera ordenada y descendente los productos con mayor ingreso
 CREATE OR REPLACE VIEW productos_mayor_ingresos AS
 SELECT nombre, ingreso_producto(nombre)
 FROM proyecto.producto

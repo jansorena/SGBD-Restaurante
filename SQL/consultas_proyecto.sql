@@ -75,7 +75,7 @@ RETURNS REAL AS $$
 DECLARE ganancia REAL; ingresos REAL; egresos REAL;
 BEGIN
 	ingresos := (
-		SELECT sum(calculo_precio_pedido(pe.id_pedido))
+		SELECT sum(proyecto.calculo_precio_pedido(pe.id_pedido))
 		FROM proyecto.pedido AS pe
 		WHERE pe.fecha_pedido = fecha
 	);
@@ -117,7 +117,7 @@ RETURNS INT AS $$
 DECLARE
 ganacias INT;
 BEGIN
-	ganacias := (ingreso_mensual(mes,anyo) - egreso_mensual(mes,anyo));
+	ganacias := (proyecto.ingreso_mensual(mes,anyo) - proyecto.egreso_mensual(mes,anyo));
 	RETURN ganacias;
 END
 $$ LANGUAGE plpgsql;

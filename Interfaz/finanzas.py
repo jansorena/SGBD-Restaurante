@@ -40,13 +40,127 @@ class finanzas(customtkinter.CTkToplevel):
         self.button_otros_egresos.grid(row=3,column=3,ipadx=30,ipady=30)
 
         self.button_ganancias = customtkinter.CTkButton(self, text="Ganacias",
-        )
+        command=self.window_ganancias)
         self.button_ganancias.grid(row=5,column=1,ipadx=30,ipady=30)
 
         self.button_productos_mas_vendidos = customtkinter.CTkButton(self, text="Productos mas vendidos",
         command=self.window_productos_mas_vendidos)
         self.button_productos_mas_vendidos.grid(row=5,column=3,ipadx=30,ipady=30)
+    
+    #ganancias
+    def window_ganancias(self):
+        window = customtkinter.CTkToplevel(self)
+        window.title("Ganancias")
+        window.rowconfigure(2,minsize=20)
+        window.rowconfigure(4,minsize=20)
+        window.rowconfigure(6,minsize=20)
+        window.rowconfigure(8,minsize=20)
 
+        window.mes_label = customtkinter.CTkLabel(window,text="Mes")
+        window.mes_label.grid(row=0,column=0)
+
+        window.anio_label = customtkinter.CTkLabel(window,text="Año")
+        window.anio_label.grid(row=1,column=0)
+
+        window.combo = ttk.Combobox(
+            window,
+            state="readonly",
+            values=["1", "2", "3", "4","5","6","7","8","9","10","11","12"]
+        )
+        window.combo.grid(row=0,column=1,ipadx=15)
+
+        window.combo2 = ttk.Combobox(
+            window,
+            state="readonly",
+            values=["2021", "2022", "2023"]
+        )
+        window.combo2.grid(row=1,column=1,ipadx=15)
+
+        window.ganancias_label = customtkinter.CTkLabel(window,text="Ganancias: ",
+        text_font=('Helvatical bold',20))
+        window.ganancias_label.grid(row=9,column=0)
+
+        window.ingresos_label = customtkinter.CTkLabel(window,text="Ingresos: ",
+        text_font=('Helvatical bold',20))
+        window.ingresos_label.grid(row=5,column=0)
+
+        window.egresos_label = customtkinter.CTkLabel(window,text="Egresos: ",
+        text_font=('Helvatical bold',20))
+        window.egresos_label.grid(row=7,column=0)
+
+        window.button_mostrar_ganancias = customtkinter.CTkButton(window, text="Mostrar ganancias",
+        command=lambda: self.mostrar_ganancias_f(window.combo.get(),window.combo2.get(),
+        window.ganancias_label,window,window.ingresos_label,window.egresos_label))
+        window.button_mostrar_ganancias.grid(row=3,column=0,columnspan=2, ipadx = 70)
+
+    def mostrar_ganancias_f(self,mes,anio,ganancia_label,window,ingresos_label,egresos_label):
+        conn = None
+        try:
+            # Leer los parametros de configuracion
+            params = config()
+
+            # Conectar a las base de datos
+            conn = psycopg2.connect(**params)
+
+            # Crear cursor
+            cur = conn.cursor()
+
+            # Ejecutar los comandos
+            cur.callproc('proyecto.ganancia_mensual',(int(mes),int(anio)))
+            ganancia = cur.fetchall()
+            cur.callproc('proyecto.ingreso_mensual',(int(mes),int(anio)))
+            ingresos = cur.fetchall()
+            cur.callproc('proyecto.egreso_mensual',(int(mes),int(anio)))
+            egresos = cur.fetchall()
+        
+            x=str(ganancia)
+            x=x.replace("[","")
+            x=x.replace("]","")
+            x=x.replace("(","")
+            x=x.replace(")","")
+            x=x.replace(",","")
+            text = 'Ganancia: $ ' + x
+
+            y=str(ingresos)
+            y=y.replace("[","")
+            y=y.replace("]","")
+            y=y.replace("(","")
+            y=y.replace(")","")
+            y=y.replace(",","")
+            text1 = 'Ingresos: $ ' + y
+
+            z=str(egresos)
+            z=z.replace("[","")
+            z=z.replace("]","")
+            z=z.replace("(","")
+            z=z.replace(")","")
+            z=z.replace(",","")
+            text2 = 'Egresos: $ ' + z            
+
+            ganancia_label = customtkinter.CTkLabel(window,text=text,
+            text_font=('Helvatical bold',20))
+            ganancia_label.grid(row=9,column=0)
+
+            ingresos_label = customtkinter.CTkLabel(window,text=text1,
+            text_font=('Helvatical bold',20))
+            ingresos_label.grid(row=5,column=0)
+
+            egresos_label = customtkinter.CTkLabel(window,text=text2,
+            text_font=('Helvatical bold',20))
+            egresos_label.grid(row=7,column=0)
+
+            # Cerrar la comunicacion con la base de datos
+            cur.close()
+
+            # Commit los cambios
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+    
+    #productos mas vendidos
     def window_productos_mas_vendidos(self):
         labels = ()
         sizes = []
@@ -91,14 +205,86 @@ class finanzas(customtkinter.CTkToplevel):
         #labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
         #sizes = [15, 30, 45, 10]
         #explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
+        try:
+            #fig = plt.figure()
+            fig1, ax1 = plt.subplots(figsize=(10, 10))
+            ax1.pie(sizes, labels=labels, autopct=lambda p:f'{p:.1f}% ({p*sum(sizes)/100 :.0f})',
+            shadow=True, startangle=90)
+            ax1.set_title('Productos mas vendidos')
+            ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+            
+        except:
+            pass
 
-        fig1, ax1 = plt.subplots(figsize=(10, 10))
-        ax1.pie(sizes, labels=labels, autopct='%1.1f%%',
-                shadow=True, startangle=90)
-        ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+        ### segundo grafico
 
-        plt.show()
+        labels = ()
+        sizes = []
 
+        # Consultar usuarios en la base de datos
+        commands = (
+            """
+            SELECT * FROM proyecto.productos_mayor_ingresos;
+            """
+        )
+        conn = None
+        try:
+            # Leer los parametros de configuracion
+            params = config()
+
+            # Conectar a las base de datos
+            conn = psycopg2.connect(**params)
+
+            # Crear cursor
+            cur = conn.cursor()
+
+            # Ejecutar los comandos
+            cur.execute(commands)
+            productos = cur.fetchall()
+
+            for producto in productos:
+                labels = labels + (producto[0],)
+                sizes.append(producto[1])
+
+            # Cerrar la comunicacion con la base de datos
+            cur.close()
+
+            # Commit los cambios
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+        
+        # Pie chart, where the slices will be ordered and plotted counter-clockwise:
+        #labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
+        #sizes = [15, 30, 45, 10]
+        #explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
+        try:
+            fig2 = plt.figure(figsize = (10, 5))
+            # creating the bar plot
+            plt.bar(labels, sizes, color ='maroon',
+                    width = 0.4)
+            
+            for a,b in zip(labels, sizes): 
+                plt.text(a, b, str(b))
+
+            plt.xlabel("Producto")
+            plt.ylabel("Ingresos")
+            plt.title("Productos de mayor ingresos")
+            plt.show()
+        except:
+            pass
+
+    def make_autopct(values):
+        def my_autopct(pct):
+            total = sum(values)
+            val = int(round(pct*total/100.0))
+            return '{p:.2f}%  ({v:d})'.format(p=pct,v=val)
+        return my_autopct
+
+    #otros egresos
     def window_otros_egresos(self):
         window = customtkinter.CTkToplevel(self)
         window.title("Otros Egresos")
@@ -192,6 +378,7 @@ class finanzas(customtkinter.CTkToplevel):
             if conn is not None:
                 conn.close()
 
+    #pagos trabajadores
     def window_pago_trabajadores(self):
         window = customtkinter.CTkToplevel(self)
         window.title("Pago Trabajadores")
@@ -231,7 +418,7 @@ class finanzas(customtkinter.CTkToplevel):
         window.button_pago_trabajador.grid(row=2,column=0,columnspan=2, ipadx = 50)
 
     def mostrar_pagos_trabajador(self,tree):
-         # Consultar usuarios en la base de datos
+        # Consultar usuarios en la base de datos
         commands = (
             """
             SELECT e.id_egreso,e.fecha_egreso,e.descripcion, e.total
@@ -277,8 +464,34 @@ class finanzas(customtkinter.CTkToplevel):
                 conn.close()
 
     def agregar_pago_trabajador_f(self,tree,rut):
-        pass
+        # Consultar usuarios en la base de datos
+        conn = None
+        try:
+            # Leer los parametros de configuracion
+            params = config()
 
+            # Conectar a las base de datos
+            conn = psycopg2.connect(**params)
+
+            # Crear cursor
+            cur = conn.cursor()
+
+            # Ejecutar los comandos
+            cur.callproc('proyecto.pago_trabajador',(rut.get(),))
+            
+            # Cerrar la comunicacion con la base de datos
+            cur.close()
+
+            self.mostrar_pagos_trabajador(tree)
+            # Commit los cambios
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+    
+    #compras
     def window_compras(self):
         window = customtkinter.CTkToplevel(self)
         window.title("Compras Ingredientes")
@@ -422,6 +635,7 @@ class finanzas(customtkinter.CTkToplevel):
             if conn is not None:
                 conn.close()
 
+    #boletas
     def window_boletas(self):
         window = customtkinter.CTkToplevel(self)
         window.title("Boletas")

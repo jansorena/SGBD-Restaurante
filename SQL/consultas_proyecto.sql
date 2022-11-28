@@ -92,6 +92,20 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION pago_trabajador(id VARCHAR)
+RETURNS VOID AS $$
+DECLARE
+salario INT;
+auxID INT := (SELECT MAX(id_egreso) FROM proyecto.egreso);
+BEGIN
+	IF(SELECT COUNT(*) FROM proyecto.trabajador AS t WHERE t.RUT = id) > 0 THEN
+		salario := (SELECT sueldo FROM proyecto.trabajador AS t WHERE t.RUT = id);
+		INSERT INTO proyecto.egreso VALUES (auxID+1,CURRENT_DATE,id,salario);
+		INSERT INTO proyecto.pago_trabajador VALUES (auxID+1);
+	END IF;
+END
+$$ LANGUAGE plpgsql;
+
 --------------------- CONSULTAS STOCK ---------------------------------------------------
 
 --Si el stock es menor a 10 se inserta en egreso una tupla con valor null y descripcion de lo que se debe comprar

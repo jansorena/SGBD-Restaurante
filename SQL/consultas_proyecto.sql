@@ -106,6 +106,25 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION ingreso_producto(VARCHAR)
+RETURNS INT AS $$
+DECLARE cantidad INT;
+BEGIN
+	cantidad := (SELECT SUM(valor_pedido) FROM proyecto.producto AS p, proyecto.tiene AS t, proyecto.pedido AS pe WHERE p.nombre = $1 AND pe.estado_pedido = 'entregado' AND p.id_producto = t.id_producto AND pe.id_pedido = t.id_pedido);
+	IF(cantidad IS NOT NULL)  THEN
+		RETURN cantidad;
+	ELSE
+		RETURN 0;
+	END IF;
+END 
+$$ LANGUAGE plpgsql;
+
+--Se muestra de manera ordenada y descendente los productos mas vendidos
+CREATE OR REPLACE VIEW productos_mayor_ingresos AS
+SELECT nombre, ingreso_producto(nombre)
+FROM proyecto.producto 
+ORDER BY 2 DESC;
+
 --------------------- CONSULTAS STOCK ---------------------------------------------------
 
 --Si el stock es menor a 10 se inserta en egreso una tupla con valor null y descripcion de lo que se debe comprar

@@ -238,15 +238,19 @@ CREATE OR REPLACE FUNCTION cantidad_vendida(VARCHAR)
 RETURNS INT AS $$
 DECLARE cantidad INT;
 BEGIN
-	cantidad :=(SELECT SUM(cantidad_producto) FROM proyecto.producto AS p, proyecto.tiene AS t WHERE p.id_producto = t.id_producto AND p.nombre = $1);
-	RETURN cantidad;
+	cantidad := (SELECT SUM(cantidad_producto) FROM proyecto.producto AS p, proyecto.tiene AS t, proyecto.pedido AS pe WHERE p.nombre = $1 AND pe.estado_pedido = 'entregado' AND p.id_producto = t.id_producto AND pe.id_pedido = t.id_pedido);
+	IF(cantidad IS NOT NULL)  THEN
+		RETURN cantidad;
+	ELSE
+		RETURN 0;
+	END IF;
 END 
 $$ LANGUAGE plpgsql;
 
 --Se muestra de manera ordenada y descendente los productos mas vendidos
 CREATE OR REPLACE VIEW productos_vendidos AS
 SELECT nombre, cantidad_vendida(nombre)
-FROM proyecto.producto
+FROM proyecto.producto 
 ORDER BY 2 DESC;
 
 --SELECT * FROM productos_vendidos;

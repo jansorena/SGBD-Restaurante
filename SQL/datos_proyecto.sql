@@ -2578,5 +2578,7 @@ INSERT INTO ocupa VALUES
 (8,8,'84464435-3'),
 (10,10,'32947945-5');
 
-
+/*
+UPDATE pedido SET estado_pedido = 'entregado' WHERE id_pedido < 11;
+*/
 --update ingrediente set stock = 20 WHERE nombre = 'ketchup';

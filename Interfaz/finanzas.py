@@ -30,6 +30,29 @@ class finanzas(customtkinter.CTkToplevel):
         command=self.window_compras)
         self.button_compras.grid(row=1,column=3,ipadx=30,ipady=30)
 
+        self.button_pago_trabajadores = customtkinter.CTkButton(self, text="Pago Trabajadores",
+        command=self.window_egresos)
+        self.button_pago_trabajadores.grid(row=3,column=1,ipadx=30,ipady=30)
+
+        self.button_otros_egresos = customtkinter.CTkButton(self, text="Otros Egresos",
+        command=self.window_egresos)
+        self.button_otros_egresos.grid(row=3,column=3,ipadx=30,ipady=30)
+
+        self.button_ganancias = customtkinter.CTkButton(self, text="Ganacias",
+        command=self.window_egresos)
+        self.button_ganancias.grid(row=5,column=1,ipadx=30,ipady=30)
+
+        self.button_productos_mas_vendidos = customtkinter.CTkButton(self, text="Productos mas vendidos",
+        command=self.window_egresos)
+        self.button_productos_mas_vendidos.grid(row=5,column=3,ipadx=30,ipady=30)
+
+
+    def window_egresos(self):
+        window = customtkinter.CTkToplevel(self)
+        window.title("Egresos")
+
+
+
     def window_compras(self):
         window = customtkinter.CTkToplevel(self)
         window.title("Compras Ingredientes")

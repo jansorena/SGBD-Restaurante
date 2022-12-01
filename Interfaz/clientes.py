@@ -40,10 +40,12 @@ class clientes(customtkinter.CTkToplevel):
         self.editar_clientes_btn = customtkinter.CTkButton(self,text="Editar cliente", command=self.editar_clientes)
         self.editar_clientes_btn.grid(row=8,column=0,columnspan=2, ipadx = 72)
         
+
+        
         # Treeview clientes
         columnas = ('RUT','Nombre','Apellido')
         self.tree = ttk.Treeview(self,columns=columnas,show='headings')
-        self.tree.grid(row=10,column=0,columnspan=2,ipady=100)
+        self.tree.grid(row=10,column=0,columnspan=2,ipady=130)
 
         self.tree.heading('RUT', text='RUT')
         self.tree.heading('Nombre', text='Nombre')
@@ -52,7 +54,7 @@ class clientes(customtkinter.CTkToplevel):
         # add a scrollbar
         scrollbar = ttk.Scrollbar(self, orient=tk.VERTICAL, command=self.tree.yview)
         self.tree.configure(yscroll=scrollbar.set)
-        scrollbar.grid(row=10, column=2,ipady=191)
+        scrollbar.grid(row=10, column=2,ipady=220)
 
         # Treeview pedidos
         columnas_pedidos = ('id_pedido','valor_pedido','estado_pedido','fecha_pedido')
@@ -74,7 +76,7 @@ class clientes(customtkinter.CTkToplevel):
         # add a scrollbar
         scrollbar_pedidos = ttk.Scrollbar(self, orient=tk.VERTICAL, command=self.tree_pedidos.yview)
         self.tree_pedidos.configure(yscroll=scrollbar.set)
-        scrollbar_pedidos.grid(row=1, column=5)
+        scrollbar_pedidos.grid(row=1, column=5,ipady=220,rowspan=10)
 
         #mostrar_pedidos
         self.tree.bind('<ButtonRelease-1>', self.mostrar_pedidos)
@@ -177,7 +179,8 @@ class clientes(customtkinter.CTkToplevel):
         commands = (
             """
             SELECT *
-            FROM proyecto.cliente as c;
+            FROM proyecto.cliente as c
+            ORDER BY c.rut;
             """
         )
         conn = None

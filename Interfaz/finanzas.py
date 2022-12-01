@@ -8,6 +8,8 @@ from PIL import Image, ImageTk
 import os
 from config import config
 import matplotlib.pyplot as plt
+from tkcalendar import Calendar
+from datetime import datetime
 
 class finanzas(customtkinter.CTkToplevel):
     def __init__(self,master):
@@ -22,6 +24,8 @@ class finanzas(customtkinter.CTkToplevel):
 
         self.columnconfigure(4,minsize=50)
         self.rowconfigure(4,minsize=50)
+
+        self.rowconfigure(6,minsize=50)
 
         self.button_boletas = customtkinter.CTkButton(self, text="Boletas",
         command=self.window_boletas)
@@ -46,7 +50,73 @@ class finanzas(customtkinter.CTkToplevel):
         self.button_productos_mas_vendidos = customtkinter.CTkButton(self, text="Productos mas vendidos",
         command=self.window_productos_mas_vendidos)
         self.button_productos_mas_vendidos.grid(row=5,column=3,ipadx=30,ipady=30)
+
+        self.button_ingresos_diarios = customtkinter.CTkButton(self, text="Ingresos Diarios",
+        command=self.window_ingresos_diarios)
+        self.button_ingresos_diarios.grid(row=7,column=1,ipadx=30,ipady=30)
     
+    def window_ingresos_diarios(self):
+        window = customtkinter.CTkToplevel(self)
+        window.title("Ingresos Diarios")
+        window.rowconfigure(1,minsize=20)
+        window.rowconfigure(3,minsize=20)
+
+        window.cal = Calendar(window, selectmode = 'day',
+               year = 2022, month = 12,
+               day = 1,
+               date_pattern='yyyy-MM-dd')
+        window.cal.grid(row=0,column=0, ipady = 200, ipadx = 200)
+
+
+
+        window.ganancias_label = customtkinter.CTkLabel(window,text="Ingresos Diarios: $ ",text_font=('Helvatical bold',20))
+        window.ganancias_label.grid(row=4,column=0, sticky="w")
+
+        window.button_mostrar_ingresos = customtkinter.CTkButton(window, text="Mostrar Ingresos",
+        command=lambda: self.ingresos_diarios_f(window.cal,window.ganancias_label))
+        window.button_mostrar_ingresos.grid(row=2,column=0,columnspan=2, ipadx = 50)
+        
+    def ingresos_diarios_f(self,cal,ganancias_label):
+        dt=cal.get_date()
+        conn = None
+        try:
+            # Leer los parametros de configuracion
+            params = config()
+
+            # Conectar a las base de datos
+            conn = psycopg2.connect(**params)
+
+            # Crear cursor
+            cur = conn.cursor()
+
+            # Ejecutar los comandos
+            cur.callproc('proyecto.ingresos_diarios',(dt,))
+            ingresos = cur.fetchall()
+        
+            x=str(ingresos)
+            x=x.replace("[","")
+            x=x.replace("]","")
+            x=x.replace("(","")
+            x=x.replace(")","")
+            x=x.replace(",","")
+            text = 'Ingresos Diarios: $ ' + x
+
+                     
+
+            ganancias_label.configure(text = text)
+
+            # Cerrar la comunicacion con la base de datos
+            cur.close()
+
+            # Commit los cambios
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+
     #ganancias
     def window_ganancias(self):
         window = customtkinter.CTkToplevel(self)
@@ -78,15 +148,15 @@ class finanzas(customtkinter.CTkToplevel):
 
         window.ganancias_label = customtkinter.CTkLabel(window,text="Ganancias: ",
         text_font=('Helvatical bold',20))
-        window.ganancias_label.grid(row=9,column=0)
+        window.ganancias_label.grid(row=9,column=0,sticky = "w")
 
         window.ingresos_label = customtkinter.CTkLabel(window,text="Ingresos: ",
         text_font=('Helvatical bold',20))
-        window.ingresos_label.grid(row=5,column=0)
+        window.ingresos_label.grid(row=5,column=0,sticky = "w")
 
         window.egresos_label = customtkinter.CTkLabel(window,text="Egresos: ",
         text_font=('Helvatical bold',20))
-        window.egresos_label.grid(row=7,column=0)
+        window.egresos_label.grid(row=7,column=0,sticky = "w")
 
         window.button_mostrar_ganancias = customtkinter.CTkButton(window, text="Mostrar ganancias",
         command=lambda: self.mostrar_ganancias_f(window.combo.get(),window.combo2.get(),
@@ -137,17 +207,10 @@ class finanzas(customtkinter.CTkToplevel):
             z=z.replace(",","")
             text2 = 'Egresos: $ ' + z            
 
-            ganancia_label = customtkinter.CTkLabel(window,text=text,
-            text_font=('Helvatical bold',20))
-            ganancia_label.grid(row=9,column=0)
+            ganancia_label.configure(text = text)
+            ingresos_label.configure(text = text1)
+            egresos_label.configure(text = text2)
 
-            ingresos_label = customtkinter.CTkLabel(window,text=text1,
-            text_font=('Helvatical bold',20))
-            ingresos_label.grid(row=5,column=0)
-
-            egresos_label = customtkinter.CTkLabel(window,text=text2,
-            text_font=('Helvatical bold',20))
-            egresos_label.grid(row=7,column=0)
 
             # Cerrar la comunicacion con la base de datos
             cur.close()
@@ -272,6 +335,7 @@ class finanzas(customtkinter.CTkToplevel):
 
             plt.xlabel("Producto")
             plt.ylabel("Ingresos")
+            plt.xticks(rotation=90)
             plt.title("Productos de mayor ingresos")
             plt.show()
         except:

@@ -12,7 +12,7 @@ class pedidos(customtkinter.CTkToplevel):
     def __init__(self,master):
         super().__init__()
         self.title("Pedidos")
-
+        #self.geometry("1140x1170")
         #################################### FRAME 1 ########################################
         self.frame1 = Frame(self)
         self.frame1.grid(row=0,column=0,sticky="nsew")
@@ -27,13 +27,10 @@ class pedidos(customtkinter.CTkToplevel):
 
         self.rut = customtkinter.CTkEntry(self.frame1, width=300)
         self.rut.grid(row=0,column=1)
-        self.id_pedido = customtkinter.CTkEntry(self.frame1,width=300)
-        self.id_pedido.grid(row=1,column=1)
+
         
         self.rut_label = customtkinter.CTkLabel(self.frame1,text="RUT")
         self.rut_label.grid(row=0,column=0)      
-        self.id_pedido_label = customtkinter.CTkLabel(self.frame1,text="ID Pedido")
-        self.id_pedido_label.grid(row=1,column=0)
 
         self.generar_pedido_btn = customtkinter.CTkButton(self.frame1, text="Generar Pedido", 
         command=self.generar_pedido)
@@ -47,9 +44,9 @@ class pedidos(customtkinter.CTkToplevel):
         self.tree_pedidos = ttk.Treeview(self.frame1,columns=columnas_pedidos,show='headings')
         self.tree_pedidos.grid(row=7,column=0,columnspan=2,ipady=50)
         self.tree_pedidos.heading('ID Pedido', text='ID Pedido')
-        self.tree_pedidos.column('ID Pedido',width=100)
+        self.tree_pedidos.column('ID Pedido',width=150)
         self.tree_pedidos.heading('RUT', text='RUT')
-        self.tree_pedidos.column('RUT',width=100)
+        self.tree_pedidos.column('RUT',width=150)
         self.tree_pedidos.heading('Estado', text='Estado')
         self.tree_pedidos.column('Estado',width=150)
         self.tree_pedidos.heading('Fecha', text='Fecha')
@@ -57,7 +54,7 @@ class pedidos(customtkinter.CTkToplevel):
 
         scrollbar_pedidos = ttk.Scrollbar(self.frame1, orient=tk.VERTICAL, command=self.tree_pedidos.yview)
         self.tree_pedidos.configure(yscroll=scrollbar_pedidos.set)
-        scrollbar_pedidos.grid(row=7, column=2,ipady=100)
+        scrollbar_pedidos.grid(row=7, column=2,ipady=170)
 
         self.tree_pedidos.bind('<ButtonRelease-1>', self.rellenar_tree_pedidos)
 
@@ -88,7 +85,7 @@ class pedidos(customtkinter.CTkToplevel):
         # Treeview productos en pedido
         columnas = ('ID Producto','Nombre','Cantidad','Valor')
         self.tree = ttk.Treeview(self.frame1,columns=columnas,show='headings')
-        self.tree.grid(row=18,column=0,columnspan=2,ipady=100)
+        self.tree.grid(row=18,column=0,columnspan=2,ipady=30)
         self.tree.heading('ID Producto', text='ID Producto')
         self.tree.column('ID Producto',width=150)
         self.tree.heading('Nombre', text='Nombre')
@@ -100,7 +97,7 @@ class pedidos(customtkinter.CTkToplevel):
 
         scrollbar = ttk.Scrollbar(self.frame1, orient=tk.VERTICAL, command=self.tree.yview)
         self.tree.configure(yscroll=scrollbar.set)
-        scrollbar.grid(row=18, column=2,ipady=191)
+        scrollbar.grid(row=18, column=2,ipady=150)
 
         self.tree.bind('<ButtonRelease-1>', self.rellenar_tree)
 
@@ -189,7 +186,6 @@ class pedidos(customtkinter.CTkToplevel):
     
     def generar_pedido(self):
         # Consultar usuarios en la base de datos
-        sql = """INSERT INTO proyecto.pedido(id_pedido,RUT) VALUES(%s,%s)"""
         conn = None
 
         try:
@@ -204,10 +200,10 @@ class pedidos(customtkinter.CTkToplevel):
 
             # Ejecutar los comandos
             rut_agregar = self.rut.get()
-            id_pedido_agregar = self.id_pedido.get()
+            
 
-            if(rut_agregar != "" and id_pedido_agregar != ""):
-                cur.execute(sql,(id_pedido_agregar,rut_agregar))
+            if(rut_agregar != ""):
+                cur.callproc('proyecto.agregar_pedido',(rut_agregar,))
 
             # Cerrar la comunicacion con la base de datos
             cur.close()
@@ -293,7 +289,10 @@ class pedidos(customtkinter.CTkToplevel):
             cur = conn.cursor()
 
             # Ejecutar los comandos
-            id_pedido_agregar = self.id_pedido.get()
+            curItem = self.tree_pedidos.focus()
+            entrada = self.tree_pedidos.item(curItem,'values')
+            
+            id_pedido_agregar = entrada[0]
             id_producto_agregar = self.id_producto.get()
             cantidad_agregar = self.cantidad.get()
 
@@ -323,7 +322,7 @@ class pedidos(customtkinter.CTkToplevel):
             # Commit los cambios
             conn.commit()
 
-            self.mostrar_total_pedido()
+            self.mostrar_total_pedido(id_pedido_agregar)
 
         except (psycopg2.DatabaseError) as error:
             messagebox.showerror(message=error, title="Error")
@@ -361,12 +360,14 @@ class pedidos(customtkinter.CTkToplevel):
             cur = conn.cursor()
 
             # Ejecutar los comandos
-            id_pedido_borrar = self.id_pedido.get()
+            curItem = self.tree_pedidos.focus()
+            entrada = self.tree_pedidos.item(curItem,'values')
+
+            id_pedido_borrar = entrada[0]
             id_producto_borrar = self.id_producto.get()
 
             if(id_pedido_borrar != ""):
                 cur.execute(sql,(id_pedido_borrar,id_producto_borrar))
-
             cur.execute(sql2,(id_pedido_borrar,))
             pedidos = cur.fetchall()
             print(pedidos)
@@ -388,7 +389,7 @@ class pedidos(customtkinter.CTkToplevel):
             # Commit los cambios
             conn.commit()
 
-            self.mostrar_total_pedido()
+            self.mostrar_total_pedido(id_pedido_borrar)
 
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
@@ -403,6 +404,8 @@ class pedidos(customtkinter.CTkToplevel):
         """
 
         conn = None
+        curItem = self.tree_pedidos.focus()
+        entrada = self.tree_pedidos.item(curItem,'values')
 
         try:
             # Leer los parametros de configuracion
@@ -415,7 +418,7 @@ class pedidos(customtkinter.CTkToplevel):
             cur = conn.cursor()
 
             # Ejecutar los comandos
-            id_pedido_agregar = self.id_pedido.get()
+            id_pedido_agregar = entrada[0]
             direccion_agregar = self.direccion_delivery.get()
 
             if(id_pedido_agregar != ""):
@@ -490,7 +493,8 @@ class pedidos(customtkinter.CTkToplevel):
         """
 
         conn = None
-
+        curItem = self.tree_pedidos.focus()
+        entrada = self.tree_pedidos.item(curItem,'values')
         try:
             # Leer los parametros de configuracion
             params = config()
@@ -502,7 +506,7 @@ class pedidos(customtkinter.CTkToplevel):
             cur = conn.cursor()
 
             # Ejecutar los comandos
-            id_pedido_actualizar = self.id_pedido.get()
+            id_pedido_actualizar = entrada[0]
 
             if(id_pedido_actualizar != ""):
                 cur.execute(sql,(id_pedido_actualizar,))
@@ -527,10 +531,8 @@ class pedidos(customtkinter.CTkToplevel):
         entrada = self.tree_pedidos.item(curItem,'values')
 
         self.rut.delete(0,END)
-        self.id_pedido.delete(0,END)
 
         try:
-            self.id_pedido.insert(0,entrada[0]) 
             self.rut.insert(0,entrada[1])
         except:
             pass
@@ -582,7 +584,7 @@ class pedidos(customtkinter.CTkToplevel):
             # Commit los cambios
             conn.commit()
 
-            self.mostrar_total_pedido()
+            self.mostrar_total_pedido(entrada[0])
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
         finally:
@@ -602,7 +604,7 @@ class pedidos(customtkinter.CTkToplevel):
         except:
             pass
     
-    def mostrar_total_pedido(self):
+    def mostrar_total_pedido(self,id_pedido):
         sql = (
         """
         SELECT p.valor_pedido
@@ -611,7 +613,6 @@ class pedidos(customtkinter.CTkToplevel):
         """
         )
         conn = None
-        id_pedido = self.id_pedido.get()
         self.total.destroy()
         try:
             # Leer los parametros de configuracion
@@ -662,6 +663,9 @@ class pedidos(customtkinter.CTkToplevel):
 
         conn = None
 
+        curItem = self.tree_pedidos.focus()
+        entrada = self.tree_pedidos.item(curItem,'values')
+
         try:
             # Leer los parametros de configuracion
             params = config()
@@ -673,7 +677,7 @@ class pedidos(customtkinter.CTkToplevel):
             cur = conn.cursor()
 
             # Ejecutar los comandos
-            id_pedido_agregar = self.id_pedido.get()
+            id_pedido_agregar = entrada[0]
             mesa_agregar = self.mesa_local.get()
             rut_agregar = self.rut.get()
 
@@ -726,7 +730,10 @@ class pedidos(customtkinter.CTkToplevel):
             cur = conn.cursor()
 
             # Ejecutar los comandos
-            id_pedido_editar = self.id_pedido.get()
+            curItem = self.tree_pedidos.focus()
+            entrada = self.tree_pedidos.item(curItem,'values')
+
+            id_pedido_editar = entrada[0]
             id_producto_editar = self.id_producto.get()
             cantidad_editar = self.cantidad.get()
 
@@ -754,7 +761,7 @@ class pedidos(customtkinter.CTkToplevel):
             # Commit los cambios
             conn.commit()
 
-            self.mostrar_total_pedido()
+            self.mostrar_total_pedido(id_pedido_editar)
 
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)

@@ -112,12 +112,102 @@ class productos(customtkinter.CTkToplevel):
 
         self.hamburguesa1 = self.load_image("/images/Hamburguesa1.jpeg", 170)
         self.hamburguesa2 = self.load_image("/images/Hamburguesa2.jpeg", 170)
+        self.aceite = self.load_image("/images/aceite.jpg", 170)
+        self.barrosluco = self.load_image("/images/Barros Luco.png", 170)
+        self.carne = self.load_image("/images/carne.jpg", 170)
+        self.cebollamorada = self.load_image("/images/cebolla morada.jpg", 170)
+        self.chucrut = self.load_image("/images/chucrut.jpg", 170)
+        self.cocacola15 = self.load_image("/images/coca-cola 1.5L.jpg", 170)
+        self.cocacolaL = self.load_image("/images/coca-cola litro.webp", 170)
+        self.cocacola = self.load_image("/images/coca-cola.png", 170)
+        self.completohasqueso = self.load_image("/images/Completo has queso.png", 170)
+        self.completohas = self.load_image("/images/completo has.jpg", 170)
+        self.completoitaliano = self.load_image("/images/Completo Italiano.png", 170)
+        self.fanta15 = self.load_image("/images/fanta 1.5L.png", 170)
+        self.fantaL = self.load_image("/images/fanta litro.jpg", 170)
+        self.fanta = self.load_image("/images/fanta.jpg", 170)
+        self.hamburguesaitaliana = self.load_image("/images/Hamburguesa Italiana.png", 170)
+        self.huevo = self.load_image("/images/huevo.jpg", 170)
+        self.kem15 = self.load_image("/images/kem 1.5L.jpg", 170)
+        self.kemL = self.load_image("/images/kem litro.jpeg", 170)
+        self.kem = self.load_image("/images/kem.png", 170)
+        self.ketchup = self.load_image("/images/ketchup.jpg", 170)
+        self.lechuga = self.load_image("/images/lechuga.jpg", 170)
+        self.lomo = self.load_image("/images/lomo.jpg", 170)
+        self.mayonesa = self.load_image("/images/mayonesa.jpg", 170)
+        self.mostaza = self.load_image("/images/mostaza.png", 170)
+        self.palta = self.load_image("/images/palta.jpg", 170)
+        self.pancompleto = self.load_image("/images/pan completo.jpg", 170)
         self.pan = self.load_image("/images/Pan.jpeg", 170)
+        self.papasfritaschica = self.load_image("/images/Papas fritas chica.png", 170)
+        self.papasfritasfamiliar = self.load_image("/images/Papas fritas familiar.png", 170)
+        self.papasfritasgrande = self.load_image("/images/Papas fritas grande.jpg", 170)
+        self.papasprefritas = self.load_image("/images/papas prefritas.jpg", 170)
+        self.pichangacalientefamiliar = self.load_image("/images/Pichanga caliente familiar.png", 170)
+        self.pichangacalientemediana = self.load_image("/images/Pichanga caliente mediana.jpg", 170)
+        self.pichangacalientepara2 = self.load_image("/images/Pichanga caliente para 2.jpg", 170)
+        self.pollo = self.load_image("/images/pollo.jpg", 170)
+        self.queso = self.load_image("/images/queso.jpg", 170)
+        self.sal = self.load_image("/images/sal.png", 170)
+        self.sprite15 = self.load_image("/images/sprite 1.5L.png", 170)
+        self.spriteL = self.load_image("/images/sprite litro.jpg", 170)
+        self.sprite = self.load_image("/images/sprite.png", 170)
+        self.tocino = self.load_image("/images/tocino.jpg", 170)
+        self.tomate = self.load_image("/images/tomate.jpg", 170)
+        self.vienesa = self.load_image("/images/vianesa.png", 170)
         
         self.dic = {
-            '1234' : self.hamburguesa1,
-            '1235' : self.hamburguesa2,
-            '1' : self.pan
+            '1231' : self.hamburguesa1,
+            '1232' : self.hamburguesa2,
+            '1233' : self.hamburguesaitaliana,
+            '1234' : self.barrosluco,
+            '1241' : self.papasfritaschica,
+            '1242' : self.papasfritasgrande,
+            '1243' : self.papasfritasfamiliar,
+            '1251' : self.hamburguesa2,
+            '1252' : self.pichangacalientemediana,
+            '1253' : self.pichangacalientefamiliar,
+            '1261' : self.completoitaliano,
+            '1262' : self.completohas,
+            '1263' : self.completohasqueso,
+            '23411' : self.cocacola,
+            '23412' : self.cocacolaL,
+            '23413' : self.cocacola15,
+            '23421' : self.sprite,
+            '23422' : self.spriteL,
+            '23423' : self.sprite15,
+            '23431' : self.fanta,
+            '23432' : self.fantaL,
+            '23433' : self.fanta15,
+            '23441' : self.kem,
+            '23442' : self.kemL,
+            '23443' : self.kem15,
+            '12' : self.chucrut,
+            #'19' : self.jamon,
+            '24' : self.kem,
+            '4' : self.tocino,
+            '7' : self.cebollamorada,
+            '9' : self.lechuga,
+            '3' : self.pan,
+            '15' : self.ketchup,
+            '16' : self.mostaza,
+            '18' : self.pollo,
+            '5' : self.huevo,
+            '17' : self.carne,
+            '13' : self.papasprefritas,
+            '2' : self.sal,
+            '1' : self.aceite,
+            '10' : self.vienesa,
+            '6' : self.queso,
+            '20' : self.lomo,
+            '25' : self.pancompleto,
+            '14' : self.mayonesa,
+            '11' : self.palta,
+            '8' : self.tomate,
+            '21' : self.cocacola,
+            '22' : self.sprite,
+            '23' : self.fanta,
+
         }
 
         self.img_label = customtkinter.CTkLabel(self, borderwidth=2, relief='solid', text='Imagen Producto',width=170,height=170)

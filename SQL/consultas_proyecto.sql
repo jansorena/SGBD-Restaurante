@@ -63,9 +63,22 @@ END
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER precio_pedido
-AFTER INSERT OR UPDATE ON proyecto.tiene
+AFTER INSERT OR UPDATE OR DELETE ON proyecto.tiene
 FOR EACH ROW
 EXECUTE PROCEDURE proyecto.precio_pedido();
+
+CREATE OR REPLACE FUNCTION precio_pedido_delete()
+RETURNS TRIGGER AS $$
+BEGIN
+	UPDATE proyecto.pedido SET valor_pedido = (proyecto.calculo_precio_pedido(OLD.id_pedido)) WHERE id_pedido = OLD.id_pedido;
+	RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER precio_pedido_delete
+AFTER DELETE ON proyecto.tiene
+FOR EACH ROW
+EXECUTE PROCEDURE proyecto.precio_pedido_delete();
 
 ------------------------CONSULTAS FINANZAS ---------------------------------------------------------------------------
 
@@ -98,6 +111,8 @@ DECLARE
 ingresos INT;
 BEGIN
 	ingresos := (SELECT SUM(total) FROM proyecto.boleta AS b WHERE EXTRACT(MONTH FROM b.fecha_venta) = mes AND EXTRACT(YEAR FROM b.fecha_venta) = anyo);
+	IF(ingresos IS NULL) THEN ingresos := 0;
+	END IF;
 	RETURN ingresos;
 END
 $$ LANGUAGE plpgsql;
@@ -108,6 +123,8 @@ DECLARE
 egresos INT;
 BEGIN
 	egresos := (SELECT SUM(total) FROM proyecto.egreso AS e WHERE EXTRACT(MONTH FROM e.fecha_egreso) = mes AND EXTRACT(YEAR FROM e.fecha_egreso) = anyo);
+	IF(egresos IS NULL) THEN egresos := 0;
+	END IF;
 	RETURN egresos;
 END
 $$ LANGUAGE plpgsql;
@@ -269,8 +286,8 @@ CREATE OR REPLACE FUNCTION pedido_completado()
 RETURNS TRIGGER AS $$
 BEGIN
 	IF(NEW.estado_pedido = 'entregado') THEN
-		INSERT INTO proyecto.boleta (id_boleta,id_pedido,total,valor_neto,iva) VALUES
-			(NEW.id_pedido,NEW.id_pedido,NEW.valor_pedido,NEW.valor_pedido*0.81,NEW.valor_pedido*0.19);
+		INSERT INTO proyecto.boleta (id_boleta,id_pedido,total,valor_neto,iva,fecha_venta) VALUES
+			(NEW.id_pedido,NEW.id_pedido,NEW.valor_pedido,NEW.valor_pedido*0.81,NEW.valor_pedido*0.19,NEW.fecha_pedido);
 	END IF;
 	RETURN NEW;
 END

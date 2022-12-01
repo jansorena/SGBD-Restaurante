@@ -2,6 +2,7 @@ import customtkinter
 from PIL import Image, ImageTk
 import os
 import tkinter
+from tkinter import ttk
 import clientes, ingredientes, trabajadores, productos, pedidos, finanzas
 
 PATH = os.path.dirname(os.path.realpath(__file__))
@@ -11,6 +12,20 @@ customtkinter.set_default_color_theme("blue")
 class MainMenu(customtkinter.CTk):
     def __init__(self):
         super().__init__()
+
+        self.style = ttk.Style()
+        self.style.theme_use("default")
+        self.style.configure("Treeview",
+            rowheight=25,
+            font=(None, 13)
+        )
+        self.style.configure("Treeview.Heading", 
+            font=(None, 13),
+        )
+        self.style.map('Treeview',
+            background = [('selected','blue')]
+        )
+
         self.title("Proyecto Base de Datos")
         self.geometry("700x700")
         self.columnconfigure(0,minsize=50)

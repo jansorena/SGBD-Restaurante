@@ -171,7 +171,7 @@ class productos(customtkinter.CTkToplevel):
             '1262' : self.completohas,
             '1263' : self.completohasqueso,
             '23411' : self.cocacola,
-            '23412' : self.cocacolaL,
+            #'23412' : self.cocacolaL,
             '23413' : self.cocacola15,
             '23421' : self.sprite,
             '23422' : self.spriteL,

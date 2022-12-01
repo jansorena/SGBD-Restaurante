@@ -131,8 +131,7 @@ class clientes(customtkinter.CTkToplevel):
 
     def agregar_clientes(self):
         # Consultar usuarios en la base de datos
-        sql = """INSERT INTO proyecto.persona(rut,nombre,apellido) VALUES(%s,%s,%s)"""
-        sql2 = """INSERT INTO proyecto.cliente(rut) VALUES(%s)"""
+        sql = """INSERT INTO proyecto.cliente(rut,nombre,apellido) VALUES(%s,%s,%s)"""
         conn = None
 
         try:
@@ -152,14 +151,14 @@ class clientes(customtkinter.CTkToplevel):
 
             if(rut_agregar != ""):
                 cur.execute(sql,(rut_agregar,nombre_agregar,apellido_agregar))
-                cur.execute(sql2,(rut_agregar,))
 
+            
             # Cerrar la comunicacion con la base de datos
             cur.close()
 
             # Commit los cambios
             conn.commit()
-
+            self.mostrar_clientes()
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
         finally:

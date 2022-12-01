@@ -7,6 +7,8 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 import os
 from config import config
+import matplotlib as mlt
+import matplotlib as mplstyle
 import matplotlib.pyplot as plt
 from tkcalendar import Calendar
 from datetime import datetime
@@ -270,13 +272,14 @@ class finanzas(customtkinter.CTkToplevel):
         #explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
         try:
             #fig = plt.figure()
+            mplstyle.use('fast')
             fig1, ax1 = plt.subplots(figsize=(10, 10))
             ax1.pie(sizes, labels=labels, autopct=lambda p:f'{p:.1f}% ({p*sum(sizes)/100 :.0f})',
             shadow=True, startangle=90)
             ax1.set_title('Productos mas vendidos')
             ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
             plt.show()
-            
+
         except:
             pass
 

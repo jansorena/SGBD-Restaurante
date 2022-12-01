@@ -118,7 +118,7 @@ class productos(customtkinter.CTkToplevel):
         self.cebollamorada = self.load_image("/images/cebolla morada.jpg", 170)
         self.chucrut = self.load_image("/images/chucrut.jpg", 170)
         self.cocacola15 = self.load_image("/images/coca-cola 1.5L.jpg", 170)
-        self.cocacolaL = self.load_image("/images/coca-cola litro.webp", 170)
+        #self.cocacolaL = self.load_image("/images/coca-cola litro.webp", 170)
         self.cocacola = self.load_image("/images/coca-cola.png", 170)
         self.completohasqueso = self.load_image("/images/Completo has queso.png", 170)
         self.completohas = self.load_image("/images/completo has.jpg", 170)

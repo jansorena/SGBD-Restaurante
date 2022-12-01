@@ -275,6 +275,7 @@ class finanzas(customtkinter.CTkToplevel):
             shadow=True, startangle=90)
             ax1.set_title('Productos mas vendidos')
             ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+            plt.show()
             
         except:
             pass
@@ -335,7 +336,7 @@ class finanzas(customtkinter.CTkToplevel):
 
             plt.xlabel("Producto")
             plt.ylabel("Ingresos")
-            plt.xticks(rotation=90)
+            plt.xticks(rotation=45)
             plt.title("Productos de mayor ingresos")
             plt.show()
         except:

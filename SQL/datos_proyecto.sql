@@ -34,29 +34,29 @@ INSERT INTO producto(id_producto,nombre,porcentaje_ganancia,tmp_preparacion) VAL
 (1234,'Barros Luco',35,10),
 
 (1241,'Papas fritas chica',35,10),
-(1242,'Papas fritas grande',35,10),
-(1243,'Papas fritas familiar',35,10),
+(1242,'Papas fritas grande',35,12),
+(1243,'Papas fritas familiar',35,14),
 
-(1251,'Pichanga caliente para 2',35,25),
-(1252,'Pichanga caliente mediana',35,25),
-(1253,'Pichanga caliente familiar',35,25),
+(1251,'Pichanga caliente para 2',35,20),
+(1252,'Pichanga caliente mediana',35,23),
+(1253,'Pichanga caliente familiar',35,27),
 
-(1261,'Completo Italiano',35,25),
-(1262,'Completo has',35,25),
-(1263,'Completo has queso',35,25),
+(1261,'Completo Italiano',35,5),
+(1262,'Completo has',35,8),
+(1263,'Completo has queso',35,8),
 
-(23411,'coca-cola chica',35,25),
-(23412,'coca-cola litro',35,25),
-(23413,'coca-cola 1.5L',35,25),
-(23421,'sprite chica',35,25),
-(23422,'sprite litro',35,25),
-(23423,'sprite 1.5L',35,25),
-(23431,'fanta chica',35,25),
-(23432,'fanta litro',35,25),
-(23433,'fanta 1.5L',35,25),
-(23441,'kem chica',35,25),
-(23442,'kem litro',35,25),
-(23443,'kem 1.5L',35,25);
+(23411,'coca-cola chica',35,3),
+(23412,'coca-cola litro',35,4),
+(23413,'coca-cola 1.5L',35,5),
+(23421,'sprite chica',35,3),
+(23422,'sprite litro',35,4),
+(23423,'sprite 1.5L',35,5),
+(23431,'fanta chica',35,3),
+(23432,'fanta litro',35,4),
+(23433,'fanta 1.5L',35,5),
+(23441,'kem chica',35,3),
+(23442,'kem litro',35,4),
+(23443,'kem 1.5L',35,5);
 
 
 /* relacion entre producto e ingredientes*/

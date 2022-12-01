@@ -35,7 +35,7 @@ id_producto INT PRIMARY KEY,
 nombre VARCHAR(100),
 valor_producto INT CHECK(valor_producto > 0),
 porcentaje_ganancia REAL DEFAULT 35,
-tmp_preparacion INT);
+tmp_preparacion INT CHECK(tmp_preparacion > 0));
 
 CREATE TABLE boleta(
 id_boleta INT PRIMARY KEY,

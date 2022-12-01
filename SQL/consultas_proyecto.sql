@@ -460,6 +460,17 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION proyecto.tiempo_pedido(id INT)
+RETURNS INT AS $$
+DECLARE
+tiempo INT;
+BEGIN
+	tiempo := (SELECT MAX(tmp_preparacion) FROM proyecto.producto AS p, proyecto.tiene AS t
+	WHERE id = t.id_pedido AND t.id_producto = p.id_producto);
+	RETURN tiempo;
+END
+$$ LANGUAGE plpgsql;
+
 /*UPDATE ocupa SET num_mesa = 4 WHERE rut = '20123456-7';
 INSERT INTO ocupa values
 (8,7,'12786274-5');

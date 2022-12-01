@@ -1,3 +1,77 @@
+CREATE OR REPLACE FUNCTION bajo_stock()
+RETURNS TRIGGER AS $$
+DECLARE
+auxNombre VARCHAR(100) := NEW.nombre;
+cont INT := (SELECT COUNT(*) FROM proyecto.actualiza AS a WHERE a.id_ingrediente = NEW.id_ingrediente);
+BEGIN
+	IF(SELECT stock
+	FROM proyecto.ingrediente AS i
+	WHERE i.id_ingrediente = NEW.id_ingrediente AND i.stock <= 10) <= 10 THEN
+        IF (cont = 0) THEN
+            INSERT INTO proyecto.egreso(id_egreso,fecha_egreso,descripcion) VALUES 
+            ((SELECT MAX(id_egreso) FROM proyecto.egreso)+1,CURRENT_DATE,CONCAT('Compra ',auxNombre));
+            INSERT INTO proyecto.compra VALUES ((SELECT MAX(id_egreso) FROM proyecto.egreso));
+            INSERT INTO proyecto.actualiza (id_ingrediente,id_egreso) VALUES (NEW.id_ingrediente,(SELECT MAX(id_egreso) FROM proyecto.egreso));
+		ELSIF(cont > 0 AND ((SELECT e.total FROM proyecto.egreso AS e, proyecto.actualiza AS a WHERE a.id_ingrediente = NEW.id_ingrediente AND e.id_egreso = a.id_egreso)) > 0) THEN
+			INSERT INTO proyecto.egreso(id_egreso,fecha_egreso,descripcion) VALUES 
+            ((SELECT MAX(id_egreso) FROM egreso)+1,CURRENT_DATE,CONCAT('Compra ',auxNombre));
+            INSERT INTO proyecto.compra VALUES ((SELECT MAX(id_egreso) FROM proyecto.egreso));
+            INSERT INTO proyecto.actualiza (id_ingrediente,id_egreso) VALUES (NEW.id_ingrediente,(SELECT MAX(id_egreso) FROM proyecto.egreso));
+        END IF;	
+	END IF;
+	RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER bajo_stock
+AFTER UPDATE ON proyecto.ingrediente
+FOR EACH ROW 
+EXECUTE PROCEDURE proyecto.bajo_stock();
+
+CREATE OR REPLACE FUNCTION actualizar_stock()
+RETURNS TRIGGER AS $$
+BEGIN
+	IF(NEW.estado_actualiza = 'actualizado') THEN
+		UPDATE proyecto.ingrediente SET stock = stock+NEW.cantidad_actualiza WHERE id_ingrediente = NEW.id_ingrediente;
+		UPDATE proyecto.ingrediente SET fecha_exp = NEW.fecha_exp WHERE id_ingrediente = NEW.id_ingrediente;
+	END IF;
+	RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION ingreso_mensual(mes INT, anyo INT)
+RETURNS INT AS $$
+DECLARE
+ingresos INT;
+BEGIN
+	ingresos := (SELECT SUM(total) FROM proyecto.boleta AS b WHERE EXTRACT(MONTH FROM b.fecha_venta) = mes AND EXTRACT(YEAR FROM b.fecha_venta) = anyo);
+	IF(ingresos IS NULL) THEN ingresos := 0;
+	END IF;
+	RETURN ingresos;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION egreso_mensual(mes INT, anyo INT)
+RETURNS INT AS $$
+DECLARE
+egresos INT;
+BEGIN
+	egresos := (SELECT SUM(total) FROM proyecto.egreso AS e WHERE EXTRACT(MONTH FROM e.fecha_egreso) = mes AND EXTRACT(YEAR FROM e.fecha_egreso) = anyo);
+	IF(egresos IS NULL) THEN egresos := 0;
+	END IF;
+	RETURN egresos;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION ganancia_mensual(mes INT, anyo INT)
+RETURNS INT AS $$
+DECLARE
+ganacias INT;
+BEGIN
+	ganacias := (proyecto.ingreso_mensual(mes,anyo) - proyecto.egreso_mensual(mes,anyo));
+	RETURN ganacias;
+END
+$$ LANGUAGE plpgsql;
 
 -------------------CONSULTAS DE PRECIOS-----------------------------------------
 

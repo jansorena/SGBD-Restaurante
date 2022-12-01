@@ -453,6 +453,13 @@ BEFORE INSERT OR UPDATE ON proyecto.ocupa
 FOR EACH ROW
 EXECUTE PROCEDURE proyecto.check_mesa();
 
+CREATE OR REPLACE FUNCTION proyecto.agregar_pedido(rut VARCHAR)
+RETURNS void AS $$
+BEGIN
+	INSERT INTO proyecto.pedido(id_pedido,RUT) VALUES ((SELECT MAX(id_pedido) FROM proyecto.pedido)+1,rut);
+END
+$$ LANGUAGE plpgsql;
+
 /*UPDATE ocupa SET num_mesa = 4 WHERE rut = '20123456-7';
 INSERT INTO ocupa values
 (8,7,'12786274-5');

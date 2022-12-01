@@ -137,7 +137,7 @@ END
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER precio_pedido
-AFTER INSERT OR UPDATE OR DELETE ON proyecto.tiene
+AFTER INSERT OR UPDATE ON proyecto.tiene
 FOR EACH ROW
 EXECUTE PROCEDURE proyecto.precio_pedido();
 

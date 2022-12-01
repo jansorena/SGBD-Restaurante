@@ -10,7 +10,7 @@ RUT VARCHAR(100) PRIMARY KEY,
 nombre VARCHAR(100) NOT NULL,
 apellido VARCHAR(100) NOT NULL,
 cargo VARCHAR(30),
-sueldo INT);
+sueldo INT CHECK(sueldo >= 400000));
 
 CREATE TABLE mesa(
 num_mesa INT PRIMARY KEY,
@@ -33,15 +33,15 @@ direccion VARCHAR(100));
 CREATE TABLE producto(
 id_producto INT PRIMARY KEY,
 nombre VARCHAR(100),
-valor_producto INT,
+valor_producto INT CHECK(valor_producto > 0),
 porcentaje_ganancia REAL DEFAULT 35,
 tmp_preparacion INT);
 
 CREATE TABLE boleta(
 id_boleta INT PRIMARY KEY,
-total INT,
-valor_neto INT,
-iva INT,
+total INT CHECK(total > 0),
+valor_neto INT CHECK(valor_neto > 0),
+iva INT CHECK(iva > 0), 
 id_pedido INT REFERENCES pedido(id_pedido) ON DELETE RESTRICT ON UPDATE CASCADE,
 fecha_venta DATE DEFAULT CURRENT_DATE);
 
@@ -51,13 +51,13 @@ nombre VARCHAR(100),
 stock REAL NOT NULL CHECK(stock >= 0) DEFAULT 0,
 u_m VARCHAR(100) CHECK(u_m IN ('unidad','kg','L')),
 fecha_exp DATE,
-valor_unitario INT);
+valor_unitario INT CHECK(valor_unitario > 0));
 
 CREATE TABLE egreso(
 id_egreso INT PRIMARY KEY,
 fecha_egreso DATE DEFAULT CURRENT_DATE,
 descripcion VARCHAR(100),
-total INT);
+total INT );
 
 CREATE TABLE compra(
 id_egreso INT PRIMARY KEY REFERENCES egreso(id_egreso) ON DELETE RESTRICT ON UPDATE CASCADE);
@@ -70,9 +70,9 @@ id_egreso INT PRIMARY KEY REFERENCES egreso(id_egreso) ON DELETE RESTRICT ON UPD
 
 CREATE TABLE proveedor(
 id_proveedor INT PRIMARY KEY,
-nombre VARCHAR(100),
-empresa VARCHAR(100),
-num_contacto VARCHAR(100));
+nombre VARCHAR(100) NOT NULL,
+empresa VARCHAR(100) NOT NULL,
+num_contacto VARCHAR(100) NOT NULL);
 
 CREATE TABLE ocupa(
 num_mesa INT REFERENCES mesa(num_mesa) ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -83,7 +83,7 @@ PRIMARY KEY(num_mesa,id_pedido,RUT));
 CREATE TABLE tiene(
 id_pedido INT REFERENCES pedido(id_pedido) ON DELETE RESTRICT ON UPDATE CASCADE,
 id_producto INT REFERENCES producto(id_producto) ON DELETE RESTRICT ON UPDATE CASCADE,
-cantidad_producto INT,
+cantidad_producto INT CHECK(cantidad_producto > 0),
 PRIMARY KEY (id_pedido,id_producto));
 
 CREATE TABLE compone(

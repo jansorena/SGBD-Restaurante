@@ -271,14 +271,14 @@ class finanzas(customtkinter.CTkToplevel):
         #sizes = [15, 30, 45, 10]
         #explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
         try:
-            #fig = plt.figure()
-            mplstyle.use('fast')
+            fig = plt.figure()
+            
             fig1, ax1 = plt.subplots(figsize=(10, 10))
             ax1.pie(sizes, labels=labels, autopct=lambda p:f'{p:.1f}% ({p*sum(sizes)/100 :.0f})',
             shadow=True, startangle=90)
             ax1.set_title('Productos mas vendidos')
             ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-            plt.show()
+            #plt.show()
 
         except:
             pass
@@ -334,8 +334,8 @@ class finanzas(customtkinter.CTkToplevel):
             plt.bar(labels, sizes, color ='maroon',
                     width = 0.4)
             
-            for a,b in zip(labels, sizes): 
-                plt.text(a, b, str(b))
+            #for a,b in zip(labels, sizes): 
+                #plt.text(a, b, str(b))
 
             plt.xlabel("Producto")
             plt.ylabel("Ingresos")
